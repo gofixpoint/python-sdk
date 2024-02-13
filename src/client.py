@@ -1,7 +1,7 @@
 import json
 from openai import OpenAI
 from lib.env import get_fixpoint_api_key
-from lib.requests import create_openai_input_log, create_openai_output_log
+from lib.requests import create_attribute, create_openai_input_log, create_openai_output_log, create_user_feedback
 
 class FixpointClient:
   def __init__(self, *args, **kwargs):
@@ -10,6 +10,21 @@ class FixpointClient:
 
     self.client = OpenAI(*args, **kwargs)
     self.chat = self._Chat(self.client)
+    self.fixpoint = self._Fixpoint()
+
+  class _Fixpoint:
+    def __init__(self):
+      self.user_feedback = self._UserFeedback()
+      self.attributes = self._Attributes()
+
+    class _UserFeedback:
+      
+      def create(self, request):
+        create_user_feedback(request)
+
+    class _Attributes:
+      def create(self, request):
+        create_attribute(request)
 
   class _Completions:
     def __init__(self, client):
