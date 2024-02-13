@@ -1,5 +1,4 @@
-from ..src.client import FixpointClient
-from ..src.lib.requests import ThumbsReaction
+from ..src.fixpoint import FixpointClient, ThumbsReaction
 
 def main():
   # Make sure that the enviroment variables set:
