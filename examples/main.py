@@ -1,12 +1,12 @@
 from client import FixpointClient
-from src.lib.requests import ThumbsReaction
+from lib.requests import ThumbsReaction
 
 def main():
   # Create a FixpointClient instance
   client = FixpointClient()
 
   # Call create method on FixpointClient instance
-  client.chat.completions.create(
+  openai_response, fixpoint_input_log_response, fixpoint_output_log_response = client.chat.completions.create(
     model="gpt-3.5-turbo-0125",
     messages=[
       {

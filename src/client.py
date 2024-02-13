@@ -55,7 +55,7 @@ class FixpointClient:
       output_log_results = output_resp.json()
       print('Created an output log: {}'.format(output_log_results['name']))
 
-      return openai_response
+      return openai_response, input_log_results, output_log_results
 
   class _Chat:
     def __init__(self, client):
