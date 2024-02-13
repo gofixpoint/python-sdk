@@ -1,8 +1,11 @@
-from client import FixpointClient
-from lib.requests import ThumbsReaction
+from ..src.client import FixpointClient
+from ..src.lib.requests import ThumbsReaction
 
 def main():
-  # Create a FixpointClient instance
+  # Make sure that the enviroment variables set:
+  # - `FIXPOINT_API_KEY` is set to your Fixpoint API key
+  # - `OPENAI_API_KEY` is set to your normal OpenAI API key
+  # Create a FixpointClient instance (uses the FIXPOINT_API_KEY env var)
   client = FixpointClient()
 
   # Call create method on FixpointClient instance
@@ -20,8 +23,10 @@ def main():
     ]
   )
 
-  # Optionally, you can pass in a trace_id into a create method to associate other logs with the same trace_id
-  client.chat.completions.create(
+  # If you make multiple calls to an LLM that are all part of the same "trace"
+  # (e.g. a multi-step chain of prompts), you can pass in a trace_id to
+  # associate them together.
+  openai_response2, fixpoint_input_log_response2, fixpoint_output_log_response2 = client.chat.completions.create(
     model="gpt-3.5-turbo-0125",
     messages=[
       {
@@ -36,18 +41,20 @@ def main():
     trace_id="some-trace-id"
   )
 
-  # Record user feedback. One user giving a thumbs up to a log, the other giving a thumbs down
+  # Record user feedback. One user giving a thumbs up to a log, the other giving a thumbs down.
+  # The `user_id` you specify should be your own system's user identifier for
+  # whoever gave the feedback.
   client.fixpoint.user_feedback.create({
     "likes": [
       {
-        "log_name": "d5c8252c-83a4-4301-a1e4-62781509eec5", # This is an internal uuid for the log
+        "log_name": fixpoint_input_log_response['name'],
         "thumbs_reaction": ThumbsReaction.THUMBS_UP,
-        "user_id": "some-user-id", # This is the user id of the user who gave the thumbs up
+        "user_id": "some-user-id"
       },
       {
-        "log_name": "d5c8252c-83a4-4301-a1e4-62781509eec5", # This is an internal uuid for the log
+        "log_name": fixpoint_input_log_response2['name'],
         "thumbs_reaction": ThumbsReaction.THUMBS_DOWN,
-        "user_id": "some-other-user-id", # This is the user id of the user who gave the thumbs down
+        "user_id": "some-other-user-id",
       }
     ]
   })
@@ -55,9 +62,9 @@ def main():
   # Record an attribute
   client.fixpoint.attributes.create({
     "log_attribute": {
+      "log_name": fixpoint_input_log_response['name'],
       "key": "conversion",
       "value": "true",
-      "log_name": "d5c8252c-83a4-4301-a1e4-62781509eec5", # This is an internal uuid for the log
     }
   })
 
