@@ -1,6 +1,6 @@
 import enum
 import requests
-from lib.env import get_fixpoint_api_key
+from .env import get_fixpoint_api_key
 
 BASE_URL = "https://api.fixpoint.co"
 
