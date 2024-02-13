@@ -1,4 +1,5 @@
 from client import FixpointClient
+from src.lib.requests import ThumbsReaction
 
 def main():
   # Create a FixpointClient instance
@@ -34,5 +35,30 @@ def main():
     ],
     trace_id="some-trace-id"
   )
+
+  # Record user feedback. One user giving a thumbs up to a log, the other giving a thumbs down
+  client.fixpoint.user_feedback.create({
+    "likes": [
+      {
+        "log_name": "d5c8252c-83a4-4301-a1e4-62781509eec5", # This is an internal uuid for the log
+        "thumbs_reaction": ThumbsReaction.THUMBS_UP,
+        "user_id": "some-user-id", # This is the user id of the user who gave the thumbs up
+      },
+      {
+        "log_name": "d5c8252c-83a4-4301-a1e4-62781509eec5", # This is an internal uuid for the log
+        "thumbs_reaction": ThumbsReaction.THUMBS_DOWN,
+        "user_id": "some-other-user-id", # This is the user id of the user who gave the thumbs down
+      }
+    ]
+  })
+
+  # Record an attribute
+  client.fixpoint.attributes.create({
+    "log_attribute": {
+      "key": "conversion",
+      "value": "true",
+      "log_name": "d5c8252c-83a4-4301-a1e4-62781509eec5", # This is an internal uuid for the log
+    }
+  })
 
 main()
