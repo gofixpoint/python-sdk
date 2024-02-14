@@ -2,6 +2,11 @@
 
 The `FixpointClient` wraps the OpenAI API Client. You can call it just like OpenAI API Client. The sdk will intercept calls to certain OpenAI APIs, record input / outputs and forward that information to Fixpoint's api server.
 
+## Installation
+You can view the package on [pypi](https://pypi.org/project/fixpoint-sdk/). To install:
+
+`pip install fixpoint-sdk`
+
 ## Usage
 
 To use the sdk make sure that you have the following variables set in your environment: `FIXPOINT_API_KEY` and `OPENAI_API_KEY`.
