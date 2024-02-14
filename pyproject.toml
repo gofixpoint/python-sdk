@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fixpoint_sdk"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Jakub Cichon", email="jakub@fixpoint.co" },
   { name="Dylan Mikus", email="dylan@fixpoint.co" },
@@ -17,8 +17,8 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License"
 ]
 dependencies = [
-  openai>=1.12.0
-  requests==2.31.0
+  "openai>=1.12.0",
+  "requests==2.31.0"
 ]
 
 [project.urls]
