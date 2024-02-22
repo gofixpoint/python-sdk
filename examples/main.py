@@ -1,4 +1,4 @@
-from ..src.fixpoint import FixpointClient, ThumbsReaction
+from src.fixpoint_sdk import FixpointClient, ThumbsReaction
 
 def main():
   # Make sure that the enviroment variables set:
@@ -7,7 +7,8 @@ def main():
   # Create a FixpointClient instance (uses the FIXPOINT_API_KEY env var)
   client = FixpointClient()
 
-  # Call create method on FixpointClient instance
+  # Call create method on FixpointClient instance. You can specify a user to associate with the request. The user will be automatically
+  # passed through to OpenAI's API.
   openai_response, fixpoint_input_log_response, fixpoint_output_log_response = client.chat.completions.create(
     model="gpt-3.5-turbo-0125",
     messages=[
@@ -19,7 +20,8 @@ def main():
         "role": "user",
         "content": "What are you?"
       }
-    ]
+    ],
+    user="some-user-id"
   )
 
   # If you make multiple calls to an LLM that are all part of the same "trace"

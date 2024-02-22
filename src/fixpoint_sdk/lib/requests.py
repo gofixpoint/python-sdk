@@ -32,7 +32,7 @@ def create_openai_input_log(model_name, request, trace_id=None):
   if trace_id:
     requestObj['trace_id'] = trace_id
 
-  return post_to_fixpoint(url, request)
+  return post_to_fixpoint(url, requestObj)
 
 def create_openai_output_log(model_name, input_log_results, open_ai_response, trace_id=None):
 
