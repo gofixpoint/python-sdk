@@ -22,6 +22,9 @@ def create_openai_input_log(model_name, request, trace_id=None):
     'messages': request['messages'],
   }
 
+  if 'user' in request:
+    requestObj['user_id'] = request['user']
+
   if 'temperature' in request:
     requestObj['temperature'] = request['temperature']
 
