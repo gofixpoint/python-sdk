@@ -131,4 +131,6 @@ class Requester:
       'Authorization': 'Bearer {}'.format(self.api_key),
     }
 
-    return requests.post(url, headers=headers, json=reqOrRespObj)
+    resp = requests.post(url, headers=headers, json=reqOrRespObj)
+    resp.raise_for_status()
+    return resp
