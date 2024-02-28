@@ -102,7 +102,8 @@ class Requester:
 
       like['origin'] = OriginType.ORIGIN_USER_FEEDBACK.value
 
-    return self.post_to_fixpoint(url, request)
+    resp = self.post_to_fixpoint(url, request)
+    return resp.json()
 
 
   def create_attribute(self, request):

@@ -35,7 +35,7 @@ class FixpointClient:
         self._requester = requester
 
       def create(self, request):
-        self._requester.create_user_feedback(request)
+        return self._requester.create_user_feedback(request)
 
     class _Attributes:
       def __init__(self, requester: Requester):
