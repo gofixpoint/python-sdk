@@ -11,145 +11,173 @@ BASE_URL = "https://api.fixpoint.co"
 
 ApiCallback = typing.Callable[[str, typing.Any, typing.Any], None]
 
+
 class Requester:
-  api_key: str
-  base_url: str
-  _on_api_call: typing.Optional[ApiCallback]
+    api_key: str
+    base_url: str
+    _on_api_call: typing.Optional[ApiCallback]
 
-  def __init__(
-      self,
-      api_key: str,
-      base_url: typing.Optional[str],
-      _on_api_call: typing.Optional[ApiCallback] = None
+    def __init__(
+        self,
+        api_key: str,
+        base_url: typing.Optional[str],
+        _on_api_call: typing.Optional[ApiCallback] = None,
     ):
-    self.api_key = api_key
-    if not base_url:
-      self.base_url = BASE_URL
-    else:
-      self.base_url = base_url
+        self.api_key = api_key
+        if not base_url:
+            self.base_url = BASE_URL
+        else:
+            self.base_url = base_url
 
-    if self.base_url[-1] == '/':
-      self.base_url = self.base_url[:-1]
+        if self.base_url[-1] == "/":
+            self.base_url = self.base_url[:-1]
 
-    self._on_api_call = _on_api_call
+        self._on_api_call = _on_api_call
 
-  @debug_log_function_io
-  def create_openai_input_log(self, model_name: str, request: types.OpenAILLMInputLog, trace_id: typing.Optional[str] = None) -> types.InputLog:
-    url = '{}/v1/openai_chats/{model_name}/input_logs'.format(self.base_url, model_name=model_name)
+    @debug_log_function_io
+    def create_openai_input_log(
+        self,
+        model_name: str,
+        request: types.OpenAILLMInputLog,
+        trace_id: typing.Optional[str] = None,
+    ) -> types.InputLog:
+        url = "{}/v1/openai_chats/{model_name}/input_logs".format(
+            self.base_url, model_name=model_name
+        )
 
-    input_log_req = types.CreateLLMInputLogRequest(
-      model_name=model_name,
-      messages=request['messages'],
-      user_id=request.get('user', None),
-      temperature=request.get('temperature', None),
-      trace_id=trace_id,
-    )
+        input_log_req = types.CreateLLMInputLogRequest(
+            model_name=model_name,
+            messages=request["messages"],
+            user_id=request.get("user", None),
+            temperature=request.get("temperature", None),
+            trace_id=trace_id,
+        )
 
-    return typing.cast(types.InputLog, self._post_to_fixpoint(url, input_log_req.to_dict()).json())
+        return typing.cast(
+            types.InputLog, self._post_to_fixpoint(url, input_log_req.to_dict()).json()
+        )
 
-
-  @debug_log_function_io
-  def create_openai_output_log(
-      self,
-      model_name: str,
-      input_log_results: types.InputLog,
-      open_ai_response: ChatCompletion,
-      trace_id: typing.Optional[str] = None
+    @debug_log_function_io
+    def create_openai_output_log(
+        self,
+        model_name: str,
+        input_log_results: types.InputLog,
+        open_ai_response: ChatCompletion,
+        trace_id: typing.Optional[str] = None,
     ) -> types.OutputLog:
-    url = '{}/v1/openai_chats/{model_name}/output_logs'.format(self.base_url, model_name=model_name)
+        url = "{}/v1/openai_chats/{model_name}/output_logs".format(
+            self.base_url, model_name=model_name
+        )
 
-    # If input_log_results doesn't have id then error
-    if 'name' not in input_log_results:
-      raise ValueError('input_log_results must have a name')
+        # If input_log_results doesn't have id then error
+        if "name" not in input_log_results:
+            raise ValueError("input_log_results must have a name")
 
-    # If open_ai_response doesn't have id then error
-    if not open_ai_response.id:
-      raise ValueError('open_ai_response must have an id')
+        # If open_ai_response doesn't have id then error
+        if not open_ai_response.id:
+            raise ValueError("open_ai_response must have an id")
 
-    choices = []
-    for choice in open_ai_response.choices:
-      choices.append({
-        "index": str(choice.index),
-        "message": choice.message.model_dump_json(),
-        "finish_reason": choice.finish_reason,
-      })
+        choices = []
+        for choice in open_ai_response.choices:
+            choices.append(
+                {
+                    "index": str(choice.index),
+                    "message": choice.message.model_dump_json(),
+                    "finish_reason": choice.finish_reason,
+                }
+            )
 
-    requestObj = {
-      'input_name': input_log_results['name'],
-      'openai_id': open_ai_response.id,
-      'model_name': model_name,
-      'choices': choices,
-      'usage': open_ai_response.usage.model_dump_json() if open_ai_response.usage else None
-    }
+        requestObj = {
+            "input_name": input_log_results["name"],
+            "openai_id": open_ai_response.id,
+            "model_name": model_name,
+            "choices": choices,
+            "usage": (
+                open_ai_response.usage.model_dump_json()
+                if open_ai_response.usage
+                else None
+            ),
+        }
 
-    # If trace_id exists, add it to the requestObj
-    if trace_id:
-      requestObj['trace_id'] = trace_id
+        # If trace_id exists, add it to the requestObj
+        if trace_id:
+            requestObj["trace_id"] = trace_id
 
-    return typing.cast(types.OutputLog, self._post_to_fixpoint(url, requestObj).json())
+        return typing.cast(
+            types.OutputLog, self._post_to_fixpoint(url, requestObj).json()
+        )
 
+    @debug_log_function_io
+    def create_user_feedback(
+        self, request: types.CreateUserFeedbackRequest
+    ) -> types.CreateUserFeedbackResponse:
+        url = "{}/v1/likes".format(self.base_url)
 
-  @debug_log_function_io
-  def create_user_feedback(self, request: types.CreateUserFeedbackRequest) -> types.CreateUserFeedbackResponse:
-    url = '{}/v1/likes'.format(self.base_url)
+        if "likes" not in request:
+            raise ValueError("request must have a likes")
 
-    if 'likes' not in request:
-      raise ValueError('request must have a likes')
+        if not isinstance(request["likes"], list):
+            raise ValueError("request.likes must be a list")
 
-    if not isinstance(request['likes'], list):
-      raise ValueError('request.likes must be a list')
+        fixed_req: typing.Dict[str, typing.Any] = typing.cast(
+            typing.Dict[str, typing.Any], request.copy()
+        )
+        fixed_req["likes"] = []
 
-    fixed_req: typing.Dict[str, typing.Any] = typing.cast(typing.Dict[str, typing.Any], request.copy())
-    fixed_req['likes'] = []
+        for like in request["likes"]:
+            new_like: typing.Dict[str, typing.Any] = typing.cast(
+                typing.Dict[str, typing.Any], like.copy()
+            )
+            if "log_name" not in like:
+                raise ValueError("request must have a log_name")
 
-    for like in request['likes']:
-      new_like: typing.Dict[str, typing.Any] = typing.cast(typing.Dict[str, typing.Any], like.copy())
-      if 'log_name' not in like:
-        raise ValueError('request must have a log_name')
+            if "thumbs_reaction" not in like:
+                raise ValueError("request must have a thumbs_reaction")
+            new_like["thumbs_reaction"] = like["thumbs_reaction"].value
 
-      if 'thumbs_reaction' not in like:
-        raise ValueError('request must have a thumbs_reaction')
-      new_like['thumbs_reaction'] = like['thumbs_reaction'].value
+            if "user_id" not in like:
+                raise ValueError("request must have a user_id")
 
-      if 'user_id' not in like:
-        raise ValueError('request must have a user_id')
+            new_like["origin"] = types.OriginType.ORIGIN_USER_FEEDBACK.value
 
-      new_like['origin'] = types.OriginType.ORIGIN_USER_FEEDBACK.value
+        resp = self._post_to_fixpoint(url, fixed_req)
+        return typing.cast(types.CreateUserFeedbackResponse, resp.json())
 
-    resp = self._post_to_fixpoint(url, fixed_req)
-    return typing.cast(types.CreateUserFeedbackResponse, resp.json())
+    @debug_log_function_io
+    def create_attribute(
+        self, request: types.CreateLogAttributeRequest
+    ) -> requests.Response:
+        url = "{}/v1/attributes".format(self.base_url)
 
+        if "log_attribute" not in request:
+            raise ValueError("request must have a log_attribute")
 
-  @debug_log_function_io
-  def create_attribute(self, request: types.CreateLogAttributeRequest) -> requests.Response:
-    url = '{}/v1/attributes'.format(self.base_url)
+        log_attribute = request["log_attribute"]
 
-    if 'log_attribute' not in request:
-      raise ValueError('request must have a log_attribute')
+        if "key" not in log_attribute:
+            raise ValueError("log_attribute must have a key")
 
-    log_attribute = request['log_attribute']
+        if "value" not in log_attribute:
+            raise ValueError("log_attribute must have a value")
 
-    if 'key' not in log_attribute:
-      raise ValueError('log_attribute must have a key')
+        if "log_name" not in log_attribute:
+            raise ValueError("log_attribute must have a log_name")
 
-    if 'value' not in log_attribute:
-      raise ValueError('log_attribute must have a value')
+        return self._post_to_fixpoint(
+            url, typing.cast(typing.Dict[str, typing.Any], request)
+        )
 
-    if 'log_name' not in log_attribute:
-      raise ValueError('log_attribute must have a log_name')
+    @debug_log_function_io
+    def _post_to_fixpoint(
+        self, url: str, reqOrRespObj: typing.Dict[str, typing.Any]
+    ) -> requests.Response:
+        headers = {
+            "Accept": "application/json",
+            "Authorization": "Bearer {}".format(self.api_key),
+        }
 
-    return self._post_to_fixpoint(url, typing.cast(typing.Dict[str, typing.Any], request))
-
-
-  @debug_log_function_io
-  def _post_to_fixpoint(self, url: str, reqOrRespObj: typing.Dict[str, typing.Any]) -> requests.Response:
-    headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer {}'.format(self.api_key),
-    }
-
-    resp = requests.post(url, headers=headers, json=reqOrRespObj)
-    resp.raise_for_status()
-    if self._on_api_call:
-      self._on_api_call(url, reqOrRespObj, resp.json())
-    return resp
+        resp = requests.post(url, headers=headers, json=reqOrRespObj)
+        resp.raise_for_status()
+        if self._on_api_call:
+            self._on_api_call(url, reqOrRespObj, resp.json())
+        return resp

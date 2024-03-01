@@ -7,8 +7,8 @@ from typing_extensions import ParamSpec
 
 
 def _is_debug_mode() -> bool:
-    debugmode = os.environ.get('DEBUG', 'off').lower()
-    return debugmode in ['on', 'true', '1']
+    debugmode = os.environ.get("DEBUG", "off").lower()
+    return debugmode in ["on", "true", "1"]
 
 
 def dprint(*args: typing.Any, **kwargs: typing.Any) -> None:
@@ -17,8 +17,8 @@ def dprint(*args: typing.Any, **kwargs: typing.Any) -> None:
     print(*args, **kwargs)
 
 
-P = ParamSpec('P')
-T = TypeVar('T')
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 class FnIODict(typing.TypedDict):
@@ -37,10 +37,10 @@ class FnIO:
 
     def to_dict(self) -> FnIODict:
         return {
-            'name': self.name,
-            'args': self.args,
-            'kwargs': self.kwargs,
-            'output': self.output,
+            "name": self.name,
+            "args": self.args,
+            "kwargs": self.kwargs,
+            "output": self.output,
         }
 
     def log(self) -> None:
