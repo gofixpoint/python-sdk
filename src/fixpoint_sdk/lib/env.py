@@ -4,7 +4,7 @@ import sys
 
 from .exc import InitException
 
-def get_fixpoint_api_key(api_key: typing.Optional[str]):
+def get_fixpoint_api_key(api_key: typing.Optional[str]) -> str:
   if api_key:
     return api_key
   if 'FIXPOINT_API_KEY' not in os.environ:
@@ -16,4 +16,3 @@ def get_fixpoint_api_key(api_key: typing.Optional[str]):
       print("FIXPOINT_API_KEY env variable is empty.")
       raise InitException("Fixpoint API key is empty")
     return key
- 
