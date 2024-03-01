@@ -3,6 +3,7 @@
 The `FixpointClient` wraps the OpenAI API Client. You can call it just like OpenAI API Client. The sdk will intercept calls to certain OpenAI APIs, record input / outputs and forward that information to Fixpoint's api server.
 
 ## Installation
+
 You can view the package on [pypi](https://pypi.org/project/fixpoint-sdk/). To install:
 
 `pip install fixpoint-sdk`
@@ -11,21 +12,31 @@ You can view the package on [pypi](https://pypi.org/project/fixpoint-sdk/). To i
 
 To use the sdk make sure that you have the following variables set in your environment: `FIXPOINT_API_KEY` and `OPENAI_API_KEY`.
 
-## Virtual Env
+## Development
+
+### Virtual Env
 
 To create a virtual environment called `venv` from your terminal run `python3 -m venv venv`.
 
-### Activate
+#### Activate
 
 `source venv/bin/activate`
 
-### Install packages
+#### Install packages
 
 To install packages from `requirements.txt` in your virtual environment using `pip` run: `pip install -r requirements.txt`
 
-### Deactivate
+#### Deactivate
 
 `deactivate`
+
+### Git hooks
+
+Set up your Githooks via:
+
+```
+git config core.hooksPath githooks/
+```
 
 ## Examples
 
