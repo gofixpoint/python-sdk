@@ -88,7 +88,7 @@ class Requester:
             choices.append(
                 {
                     "index": str(choice.index),
-                    "message": choice.message.model_dump_json(),
+                    "message": choice.message.model_dump(),
                     "finish_reason": choice.finish_reason,
                 }
             )
@@ -99,9 +99,7 @@ class Requester:
             "model_name": model_name,
             "choices": choices,
             "usage": (
-                open_ai_response.usage.model_dump_json()
-                if open_ai_response.usage
-                else None
+                open_ai_response.usage.model_dump() if open_ai_response.usage else None
             ),
         }
 
@@ -146,6 +144,7 @@ class Requester:
                 raise ValueError("request must have a user_id")
 
             new_like["origin"] = types.OriginType.ORIGIN_USER_FEEDBACK.value
+            fixed_req["likes"].append(new_like)
 
         resp = self._post_to_fixpoint(url, fixed_req)
         return typing.cast(types.CreateUserFeedbackResponse, resp.json())

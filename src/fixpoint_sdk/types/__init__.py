@@ -41,7 +41,7 @@ class CreateLLMInputLogRequest:
         return asdict(self)
 
 
-class OpenAILLMInputLog(TypedDict):
+class OpenAILLMInputLog(TypedDict, total=False):
     """An input log with attributes from OpenAI response.
 
     This input log has some attributes that come directly from an OpenAI
@@ -61,6 +61,12 @@ class InputLog(TypedDict):
     """An LLM input log."""
 
     name: str
+    modelName: Optional[str]
+    sessionName: Optional[str]
+    messages: List[Any]
+    temperature: Optional[float]
+    createdAt: Optional[Any]
+    traceId: Optional[str]
 
 
 # TODO(dbmikus) this is an incomplete definition.
@@ -76,7 +82,7 @@ class UserFeedbackLike(TypedDict):
     log_name: str
     thumbs_reaction: ThumbsReaction
     user_id: str
-    origin: OriginType
+    origin: Optional[OriginType]
 
 
 class CreateUserFeedbackRequest(TypedDict):

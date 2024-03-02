@@ -1,6 +1,6 @@
 {
   "*.py": [
-    "python -m mypy --explicit-package-bases",
+    "python -m mypy",
     "python -m black",
     "python -m pylint"
   ]
