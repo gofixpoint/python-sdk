@@ -33,8 +33,11 @@ the `requirement.txt`, you can run:
 ```
 pip install .
 
+# or in "editable mode" so your install changes as you update the source code:
+pip install -e .
+
 # and to install dev dependencies
-pip install '.[dev]'
+pip install -e '.[dev]'
 ```
 
 #### Deactivate
