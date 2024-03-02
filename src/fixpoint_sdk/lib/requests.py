@@ -2,6 +2,9 @@ import enum
 import requests
 import typing
 
+from .debugging import debug_log_function_io
+
+
 BASE_URL = "https://api.fixpoint.co"
 
 class ThumbsReaction(enum.Enum):
@@ -14,17 +17,31 @@ class OriginType(enum.Enum):
   ORIGIN_USER_FEEDBACK = 1
   ORIGIN_ADMIN = 2
 
+ApiCallback = typing.Callable[[str, typing.Any, typing.Any], None]
+
 class Requester:
   api_key: str
   base_url: str
+  _on_api_call: typing.Optional[ApiCallback]
 
-  def __init__(self, api_key: str, base_url: typing.Optional[str]):
+  def __init__(
+      self,
+      api_key: str,
+      base_url: typing.Optional[str],
+      _on_api_call: typing.Optional[ApiCallback] = None
+    ):
     self.api_key = api_key
     if not base_url:
       self.base_url = BASE_URL
     else:
       self.base_url = base_url
 
+    if self.base_url[-1] == '/':
+      self.base_url = self.base_url[:-1]
+
+    self._on_api_call = _on_api_call
+
+  @debug_log_function_io
   def create_openai_input_log(self, model_name, request, trace_id=None):
     url = '{}/v1/openai_chats/{model_name}/input_logs'.format(self.base_url, model_name=model_name)
 
@@ -43,9 +60,9 @@ class Requester:
     if trace_id:
       requestObj['trace_id'] = trace_id
 
-    return self.post_to_fixpoint(url, requestObj)
+    return self.post_to_fixpoint(url, requestObj).json()
 
-
+  @debug_log_function_io
   def create_openai_output_log(self, model_name, input_log_results, open_ai_response, trace_id=None):
     url = '{}/v1/openai_chats/{model_name}/output_logs'.format(self.base_url, model_name=model_name)
 
@@ -77,9 +94,9 @@ class Requester:
     if trace_id:
       requestObj['trace_id'] = trace_id
 
-    return self.post_to_fixpoint(url, requestObj)
+    return self.post_to_fixpoint(url, requestObj).json()
 
-
+  @debug_log_function_io
   def create_user_feedback(self, request):
     url = '{}/v1/likes'.format(self.base_url)
 
@@ -105,7 +122,7 @@ class Requester:
     resp = self.post_to_fixpoint(url, request)
     return resp.json()
 
-
+  @debug_log_function_io
   def create_attribute(self, request):
     url = '{}/v1/attributes'.format(self.base_url)
 
@@ -123,9 +140,9 @@ class Requester:
     if 'log_name' not in log_attribute:
       raise ValueError('log_attribute must have a log_name')
     
-    return self.post_to_fixpoint(url, request)
+    return self.post_to_fixpoint(url, request).json()
 
-
+  @debug_log_function_io
   def post_to_fixpoint(self, url, reqOrRespObj):
     headers = {
       'Accept': 'application/json',
@@ -134,4 +151,6 @@ class Requester:
 
     resp = requests.post(url, headers=headers, json=reqOrRespObj)
     resp.raise_for_status()
+    if self._on_api_call:
+      self._on_api_call(url, reqOrRespObj, resp.json())
     return resp

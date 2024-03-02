@@ -63,8 +63,7 @@ class FixpointClient:
       input_resp = self._requester.create_openai_input_log(
         reqCopy['model_name'], reqCopy, trace_id=trace_id
       )
-      input_log_results = input_resp.json()
-      dprint('Created an input log: {}'.format(input_log_results['name']))
+      dprint('Created an input log: {}'.format(input_resp['name']))
 
       # Make create call to OPEN AI
       openai_response = self.client.chat.completions.create(*args, **kwargs)
@@ -73,12 +72,11 @@ class FixpointClient:
 
       # Send HTTP request after calling create
       output_resp = self._requester.create_openai_output_log(
-        reqCopy['model_name'], input_log_results, openai_results, trace_id=trace_id
+        reqCopy['model_name'], input_resp, openai_results, trace_id=trace_id
       )
-      output_log_results = output_resp.json()
-      dprint('Created an output log: {}'.format(output_log_results['name']))
+      dprint('Created an output log: {}'.format(output_resp['name']))
 
-      return openai_response, input_log_results, output_log_results
+      return openai_response, input_resp, output_resp
 
   class _Chat:
     def __init__(self, requester: Requester, client: OpenAI):
