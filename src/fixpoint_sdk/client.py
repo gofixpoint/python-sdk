@@ -14,12 +14,13 @@ from . import types
 
 class FixpointClient:
     """The FixpointClient lets you interact with the Fixpoint API."""
+
     def __init__(
         self,
-        fixpoint_api_key: typing.Optional[str],
-        openai_api_key: typing.Optional[str],
-        api_base_url: typing.Optional[str],
         *args: typing.Any,
+        fixpoint_api_key: typing.Optional[str] = None,
+        openai_api_key: typing.Optional[str] = None,
+        api_base_url: typing.Optional[str] = None,
         **kwargs: typing.Any,
     ):
         # Check that the environment variable FIXPOINT_API_KEY is set
