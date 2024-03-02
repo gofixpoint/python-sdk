@@ -1,2 +1,4 @@
+"""Exceptions for the Fixpoint SDK."""
+
 class InitException(Exception):
-    pass
+    """An exception raised when the Fixpoint client fails to initialize."""
