@@ -5,15 +5,15 @@ from openai.types.chat import ChatCompletionMessageParam
 
 
 class ThumbsReaction(enum.Enum):
-  THUMBS_UNSPECIFIED = 0
-  THUMBS_UP = 1
-  THUMBS_DOWN = 2
+    THUMBS_UNSPECIFIED = 0
+    THUMBS_UP = 1
+    THUMBS_DOWN = 2
 
 
 class OriginType(enum.Enum):
-  ORIGIN_UNSPECIFIED = 0
-  ORIGIN_USER_FEEDBACK = 1
-  ORIGIN_ADMIN = 2
+    ORIGIN_UNSPECIFIED = 0
+    ORIGIN_USER_FEEDBACK = 1
+    ORIGIN_ADMIN = 2
 
 
 @dataclass
