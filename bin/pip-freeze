@@ -19,4 +19,8 @@ if [[ -z ${VIRTUAL_ENV:-} ]]; then
 fi
 
 cd $ROOT_DIR
-pip freeze > requirements.txt
+
+# Ignore the fixpoint_sdk if we installed it in editable mode, and ignore
+# `pkg_resources`, which is included because of some weird bug.
+# https://stackoverflow.com/questions/39577984/what-is-pkg-resources-0-0-0-in-output-of-pip-freeze-command
+pip freeze | grep -E -v '(fixpoint_sdk|pkg_resources)' > requirements.txt

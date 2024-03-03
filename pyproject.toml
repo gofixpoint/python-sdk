@@ -27,6 +27,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "black>=24",
+  "ipdb>=0.13.13",
   "mypy>=1.8",
   "pylint>=3",
   "pytest>=8.0.2",
