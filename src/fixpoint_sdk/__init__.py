@@ -1,2 +1,2 @@
 from .client import FixpointClient
-from .lib.requests import ThumbsReaction
+from .types import ThumbsReaction

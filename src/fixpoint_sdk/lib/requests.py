@@ -1,21 +1,13 @@
-import enum
 import requests
 import typing
 
+from openai.types.chat import ChatCompletion
+
 from .debugging import debug_log_function_io
+from .. import types
 
 
 BASE_URL = "https://api.fixpoint.co"
-
-class ThumbsReaction(enum.Enum):
-  THUMBS_UNSPECIFIED = 0
-  THUMBS_UP = 1
-  THUMBS_DOWN = 2
-
-class OriginType(enum.Enum):
-  ORIGIN_UNSPECIFIED = 0
-  ORIGIN_USER_FEEDBACK = 1
-  ORIGIN_ADMIN = 2
 
 ApiCallback = typing.Callable[[str, typing.Any, typing.Any], None]
 
@@ -42,28 +34,28 @@ class Requester:
     self._on_api_call = _on_api_call
 
   @debug_log_function_io
-  def create_openai_input_log(self, model_name, request, trace_id=None):
+  def create_openai_input_log(self, model_name: str, request: types.OpenAILLMInputLog, trace_id: typing.Optional[str] = None) -> types.InputLog:
     url = '{}/v1/openai_chats/{model_name}/input_logs'.format(self.base_url, model_name=model_name)
 
-    requestObj = {
-      'model_name': model_name,
-      'messages': request['messages'],
-    }
+    input_log_req = types.CreateLLMInputLogRequest(
+      model_name=model_name,
+      messages=request['messages'],
+      user_id=request.get('user', None),
+      temperature=request.get('temperature', None),
+      trace_id=trace_id,
+    )
 
-    if 'user' in request:
-      requestObj['user_id'] = request['user']
+    return typing.cast(types.InputLog, self._post_to_fixpoint(url, input_log_req.to_dict()).json())
 
-    if 'temperature' in request:
-      requestObj['temperature'] = request['temperature']
-
-    # If trace_id exists, add it to the requestObj
-    if trace_id:
-      requestObj['trace_id'] = trace_id
-
-    return self.post_to_fixpoint(url, requestObj).json()
 
   @debug_log_function_io
-  def create_openai_output_log(self, model_name, input_log_results, open_ai_response, trace_id=None):
+  def create_openai_output_log(
+      self,
+      model_name: str,
+      input_log_results: types.InputLog,
+      open_ai_response: ChatCompletion,
+      trace_id: typing.Optional[str] = None
+    ) -> types.OutputLog:
     url = '{}/v1/openai_chats/{model_name}/output_logs'.format(self.base_url, model_name=model_name)
 
     # If input_log_results doesn't have id then error
@@ -71,79 +63,86 @@ class Requester:
       raise ValueError('input_log_results must have a name')
 
     # If open_ai_response doesn't have id then error
-    if 'id' not in open_ai_response:
+    if not open_ai_response.id:
       raise ValueError('open_ai_response must have an id')
 
     choices = []
-    for choice in open_ai_response['choices']:
+    for choice in open_ai_response.choices:
       choices.append({
-        "index": str(choice['index']),
-        "message": choice['message'],
-        "finish_reason": choice['finish_reason'],
+        "index": str(choice.index),
+        "message": choice.message.model_dump_json(),
+        "finish_reason": choice.finish_reason,
       })
 
     requestObj = {
       'input_name': input_log_results['name'],
-      'openai_id': open_ai_response['id'],
+      'openai_id': open_ai_response.id,
       'model_name': model_name,
       'choices': choices,
-      'usage': open_ai_response['usage'],
+      'usage': open_ai_response.usage.model_dump_json() if open_ai_response.usage else None
     }
 
     # If trace_id exists, add it to the requestObj
     if trace_id:
       requestObj['trace_id'] = trace_id
 
-    return self.post_to_fixpoint(url, requestObj).json()
+    return typing.cast(types.OutputLog, self._post_to_fixpoint(url, requestObj).json())
+
 
   @debug_log_function_io
-  def create_user_feedback(self, request):
+  def create_user_feedback(self, request: types.CreateUserFeedbackRequest) -> types.CreateUserFeedbackResponse:
     url = '{}/v1/likes'.format(self.base_url)
 
     if 'likes' not in request:
       raise ValueError('request must have a likes')
-    
+
     if not isinstance(request['likes'], list):
       raise ValueError('request.likes must be a list')
-    
+
+    fixed_req: typing.Dict[str, typing.Any] = typing.cast(typing.Dict[str, typing.Any], request.copy())
+    fixed_req['likes'] = []
+
     for like in request['likes']:
+      new_like: typing.Dict[str, typing.Any] = typing.cast(typing.Dict[str, typing.Any], like.copy())
       if 'log_name' not in like:
         raise ValueError('request must have a log_name')
 
       if 'thumbs_reaction' not in like:
         raise ValueError('request must have a thumbs_reaction')
-      like['thumbs_reaction'] = like['thumbs_reaction'].value
-      
+      new_like['thumbs_reaction'] = like['thumbs_reaction'].value
+
       if 'user_id' not in like:
         raise ValueError('request must have a user_id')
 
-      like['origin'] = OriginType.ORIGIN_USER_FEEDBACK.value
+      new_like['origin'] = types.OriginType.ORIGIN_USER_FEEDBACK.value
 
-    resp = self.post_to_fixpoint(url, request)
-    return resp.json()
+    resp = self._post_to_fixpoint(url, fixed_req)
+    return typing.cast(types.CreateUserFeedbackResponse, resp.json())
+
 
   @debug_log_function_io
-  def create_attribute(self, request):
+  def create_attribute(self, request: types.CreateLogAttributeRequest) -> requests.Response:
     url = '{}/v1/attributes'.format(self.base_url)
 
     if 'log_attribute' not in request:
       raise ValueError('request must have a log_attribute')
-    
+
     log_attribute = request['log_attribute']
 
     if 'key' not in log_attribute:
       raise ValueError('log_attribute must have a key')
-    
+
     if 'value' not in log_attribute:
       raise ValueError('log_attribute must have a value')
-    
+
     if 'log_name' not in log_attribute:
       raise ValueError('log_attribute must have a log_name')
-    
-    return self.post_to_fixpoint(url, request).json()
+
+    return self._post_to_fixpoint(url, typing.cast(typing.Dict[str, typing.Any], request))
+
 
   @debug_log_function_io
-  def post_to_fixpoint(self, url, reqOrRespObj):
+  def _post_to_fixpoint(self, url: str, reqOrRespObj: typing.Dict[str, typing.Any]) -> requests.Response:
     headers = {
       'Accept': 'application/json',
       'Authorization': 'Bearer {}'.format(self.api_key),
