@@ -1,6 +1,8 @@
-import requests
+"""Module for making requests to the Fixpoint API."""
+
 import typing
 
+import requests
 from openai.types.chat import ChatCompletion
 
 from .debugging import debug_log_function_io
@@ -8,26 +10,32 @@ from .. import types
 
 
 BASE_URL = "https://api.fixpoint.co"
+DEFAULT_TIMEOUT_S = 60
 
 ApiCallback = typing.Callable[[str, typing.Any, typing.Any], None]
 
 
 class Requester:
+    """Makes requests to the Fixpoint API."""
+
     api_key: str
     base_url: str
+    timeout_s: int
     _on_api_call: typing.Optional[ApiCallback]
 
     def __init__(
         self,
         api_key: str,
         base_url: typing.Optional[str],
+        timeout_s: int = DEFAULT_TIMEOUT_S,
         _on_api_call: typing.Optional[ApiCallback] = None,
     ):
         self.api_key = api_key
-        if not base_url:
+        if base_url is None:
             self.base_url = BASE_URL
         else:
             self.base_url = base_url
+        self.timeout_s = timeout_s
 
         if self.base_url[-1] == "/":
             self.base_url = self.base_url[:-1]
@@ -41,9 +49,8 @@ class Requester:
         request: types.OpenAILLMInputLog,
         trace_id: typing.Optional[str] = None,
     ) -> types.InputLog:
-        url = "{}/v1/openai_chats/{model_name}/input_logs".format(
-            self.base_url, model_name=model_name
-        )
+        """Create an input log for an LLM inference request."""
+        url = f"{self.base_url}/v1/openai_chats/{model_name}/input_logs"
 
         input_log_req = types.CreateLLMInputLogRequest(
             model_name=model_name,
@@ -65,9 +72,8 @@ class Requester:
         open_ai_response: ChatCompletion,
         trace_id: typing.Optional[str] = None,
     ) -> types.OutputLog:
-        url = "{}/v1/openai_chats/{model_name}/output_logs".format(
-            self.base_url, model_name=model_name
-        )
+        """Create an output log for an LLM inference response."""
+        url = f"{self.base_url}/v1/openai_chats/{model_name}/output_logs"
 
         # If input_log_results doesn't have id then error
         if "name" not in input_log_results:
@@ -87,7 +93,7 @@ class Requester:
                 }
             )
 
-        requestObj = {
+        request_obj = {
             "input_name": input_log_results["name"],
             "openai_id": open_ai_response.id,
             "model_name": model_name,
@@ -101,17 +107,18 @@ class Requester:
 
         # If trace_id exists, add it to the requestObj
         if trace_id:
-            requestObj["trace_id"] = trace_id
+            request_obj["trace_id"] = trace_id
 
         return typing.cast(
-            types.OutputLog, self._post_to_fixpoint(url, requestObj).json()
+            types.OutputLog, self._post_to_fixpoint(url, request_obj).json()
         )
 
     @debug_log_function_io
     def create_user_feedback(
         self, request: types.CreateUserFeedbackRequest
     ) -> types.CreateUserFeedbackResponse:
-        url = "{}/v1/likes".format(self.base_url)
+        """Create user feedback on an LLM log."""
+        url = f"{self.base_url}/v1/likes"
 
         if "likes" not in request:
             raise ValueError("request must have a likes")
@@ -147,7 +154,8 @@ class Requester:
     def create_attribute(
         self, request: types.CreateLogAttributeRequest
     ) -> requests.Response:
-        url = "{}/v1/attributes".format(self.base_url)
+        """Create a LLM log attribute and attach it to that LLM log."""
+        url = f"{self.base_url}/v1/attributes"
 
         if "log_attribute" not in request:
             raise ValueError("request must have a log_attribute")
@@ -169,15 +177,17 @@ class Requester:
 
     @debug_log_function_io
     def _post_to_fixpoint(
-        self, url: str, reqOrRespObj: typing.Dict[str, typing.Any]
+        self, url: str, req_or_resp_obj: typing.Dict[str, typing.Any]
     ) -> requests.Response:
         headers = {
             "Accept": "application/json",
-            "Authorization": "Bearer {}".format(self.api_key),
+            "Authorization": f"Bearer {self.api_key}",
         }
 
-        resp = requests.post(url, headers=headers, json=reqOrRespObj)
+        resp = requests.post(
+            url, headers=headers, json=req_or_resp_obj, timeout=self.timeout_s
+        )
         resp.raise_for_status()
         if self._on_api_call:
-            self._on_api_call(url, reqOrRespObj, resp.json())
+            self._on_api_call(url, req_or_resp_obj, resp.json())
         return resp

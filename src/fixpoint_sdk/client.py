@@ -1,8 +1,10 @@
-import requests
+"""Defines the Fixpoint client, which is the main interface for the SDK."""
+
 import typing
 
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
+import requests
 
 from .lib.env import get_fixpoint_api_key
 from .lib.requests import Requester
@@ -11,6 +13,7 @@ from . import types
 
 
 class FixpointClient:
+    """The FixpointClient lets you interact with the Fixpoint API."""
     def __init__(
         self,
         fixpoint_api_key: typing.Optional[str],
@@ -42,6 +45,7 @@ class FixpointClient:
             def create(
                 self, request: types.CreateUserFeedbackRequest
             ) -> types.CreateUserFeedbackResponse:
+                """Attach user feedback to an LLM log."""
                 return self._requester.create_user_feedback(request)
 
         class _Attributes:
@@ -51,6 +55,7 @@ class FixpointClient:
             def create(
                 self, request: types.CreateLogAttributeRequest
             ) -> requests.Response:
+                """Attach a log attribute to an LLM log."""
                 return self._requester.create_attribute(request)
 
     class _Completions:
@@ -61,33 +66,34 @@ class FixpointClient:
         def create(
             self, *args: typing.Any, **kwargs: typing.Any
         ) -> typing.Tuple[ChatCompletion, typing.Any, typing.Any]:
+            """Create an OpenAI completion and log the LLM input and output."""
             # Extract trace_id from kwargs, if it exists, otherwise set it to None
             trace_id = kwargs.pop("trace_id", None)
 
             # Deep copy the kwargs to avoid modifying the original
-            reqCopy = kwargs.copy()
-            if "model" not in reqCopy:
+            req_copy = kwargs.copy()
+            if "model" not in req_copy:
                 raise ValueError("model needs to be passed in as a kwarg")
-            reqCopy["model_name"] = reqCopy.pop("model")
+            req_copy["model_name"] = req_copy.pop("model")
 
             # Send HTTP request before calling create
             input_resp = self._requester.create_openai_input_log(
-                reqCopy["model_name"],
+                req_copy["model_name"],
                 # TODO(dbmikus) fix sloppy typing
-                typing.cast(types.OpenAILLMInputLog, reqCopy),
+                typing.cast(types.OpenAILLMInputLog, req_copy),
                 trace_id=trace_id,
             )
-            dprint("Created an input log: {}".format(input_resp["name"]))
+            dprint(f'Created an input log: {input_resp["name"]}')
 
             # Make create call to OPEN AI
             openai_response = self.client.chat.completions.create(*args, **kwargs)
-            dprint("Received an openai response: {}".format(openai_response.id))
+            dprint(f"Received an openai response: {openai_response.id}")
 
             # Send HTTP request after calling create
             output_resp = self._requester.create_openai_output_log(
-                reqCopy["model_name"], input_resp, openai_response, trace_id=trace_id
+                req_copy["model_name"], input_resp, openai_response, trace_id=trace_id
             )
-            dprint("Created an output log: {}".format(output_resp["name"]))
+            dprint(f"Created an output log: {output_resp['name']}")
 
             return openai_response, input_resp, output_resp
 

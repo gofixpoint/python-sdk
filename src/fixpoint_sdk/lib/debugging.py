@@ -1,3 +1,4 @@
+"""Utilities for debugging."""
 from dataclasses import dataclass
 import functools
 import os
@@ -12,6 +13,7 @@ def _is_debug_mode() -> bool:
 
 
 def dprint(*args: typing.Any, **kwargs: typing.Any) -> None:
+    """Prints only if debug mode is on."""
     if not _is_debug_mode():
         return
     print(*args, **kwargs)
@@ -22,6 +24,7 @@ T = TypeVar("T")
 
 
 class FnIODict(typing.TypedDict):
+    """A dictionary representation of a function call."""
     name: str
     args: typing.List[str]
     kwargs: typing.Dict[str, str]
@@ -30,12 +33,14 @@ class FnIODict(typing.TypedDict):
 
 @dataclass
 class FnIO:
+    """Store the text representation of a function call."""
     name: str
     args: typing.List[str]
     kwargs: typing.Dict[str, str]
     output: str
 
     def to_dict(self) -> FnIODict:
+        """Converts the object to a dictionary."""
         return {
             "name": self.name,
             "args": self.args,
@@ -44,10 +49,12 @@ class FnIO:
         }
 
     def log(self) -> None:
+        """Prints a text representation of the FnIO object."""
         print(self.to_dict())
 
 
 def debug_log_function_io(func: Callable[P, T]) -> Callable[P, T]:
+    """Logs the input and output of a function, only if debug mode is on."""
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         if not _is_debug_mode():
@@ -58,6 +65,7 @@ def debug_log_function_io(func: Callable[P, T]) -> Callable[P, T]:
 
 
 def log_function_io(func: Callable[P, T]) -> Callable[P, T]:
+    """Logs the input and output of a function."""
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         return _log_fn_io(func, *args, **kwargs)
