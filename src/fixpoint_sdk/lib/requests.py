@@ -48,18 +48,19 @@ class Requester:
         model_name: str,
         request: types.OpenAILLMInputLog,
         trace_id: typing.Optional[str] = None,
+        mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
     ) -> types.InputLog:
         """Create an input log for an LLM inference request."""
         url = f"{self.base_url}/v1/openai_chats/{model_name}/input_logs"
-
         input_log_req = types.CreateLLMInputLogRequest(
             model_name=model_name,
             messages=request["messages"],
             user_id=request.get("user", None),
             temperature=request.get("temperature", None),
             trace_id=trace_id,
+            mode=mode,
         )
-
+        self._post_to_fixpoint(url, input_log_req.to_dict())
         return typing.cast(
             types.InputLog, self._post_to_fixpoint(url, input_log_req.to_dict()).json()
         )
@@ -71,6 +72,7 @@ class Requester:
         input_log_results: types.InputLog,
         open_ai_response: ChatCompletion,
         trace_id: typing.Optional[str] = None,
+        mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
     ) -> types.OutputLog:
         """Create an output log for an LLM inference response."""
         url = f"{self.base_url}/v1/openai_chats/{model_name}/output_logs"
@@ -101,6 +103,7 @@ class Requester:
             "usage": (
                 open_ai_response.usage.model_dump() if open_ai_response.usage else None
             ),
+            "mode": mode.value,
         }
 
         # If trace_id exists, add it to the requestObj
@@ -182,7 +185,6 @@ class Requester:
             "Accept": "application/json",
             "Authorization": f"Bearer {self.api_key}",
         }
-
         resp = requests.post(
             url, headers=headers, json=req_or_resp_obj, timeout=self.timeout_s
         )

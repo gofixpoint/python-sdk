@@ -26,6 +26,20 @@ class OriginType(enum.Enum):
     ORIGIN_ADMIN = 2
 
 
+class ModeType(enum.Enum):
+    """The mode in which an entity is stored.
+
+    There are three possible modes: test, staging, and prod. Any entity such as an LLM log or
+    a dataset registered under a specific mode will only be accessible in that mode.
+    If unspecified in the request, any entity will be stored in the prod mode by default.
+    """
+
+    MODE_UNSPECIFIED = 0
+    MODE_TEST = 1
+    MODE_STAGING = 2
+    MODE_PROD = 3
+
+
 @dataclass
 class CreateLLMInputLogRequest:
     """Request to create a log of a chat completion input."""
@@ -35,6 +49,7 @@ class CreateLLMInputLogRequest:
     user_id: Optional[str] = None
     temperature: Optional[float] = None
     trace_id: Optional[str] = None
+    mode: Optional[ModeType] = ModeType.MODE_UNSPECIFIED
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert this request to a dictionary."""
