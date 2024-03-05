@@ -60,7 +60,6 @@ class Requester:
             trace_id=trace_id,
             mode=mode,
         )
-        self._post_to_fixpoint(url, input_log_req.to_dict())
         return typing.cast(
             types.InputLog, self._post_to_fixpoint(url, input_log_req.to_dict()).json()
         )
