@@ -26,15 +26,12 @@ class Requester:
     def __init__(
         self,
         api_key: str,
-        base_url: typing.Optional[str],
+        base_url: str,
         timeout_s: int = DEFAULT_TIMEOUT_S,
         _on_api_call: typing.Optional[ApiCallback] = None,
     ):
         self.api_key = api_key
-        if base_url is None:
-            self.base_url = BASE_URL
-        else:
-            self.base_url = base_url
+        self.base_url = base_url
         self.timeout_s = timeout_s
 
         if self.base_url[-1] == "/":
@@ -152,7 +149,7 @@ class Requester:
     @debug_log_function_io
     def create_attribute(
         self, request: types.CreateLogAttributeRequest
-    ) -> requests.Response:
+    ) -> types.LogAttribute:
         """Create a LLM log attribute and attach it to that LLM log."""
         url = f"{self.base_url}/v1/attributes"
 
@@ -170,9 +167,11 @@ class Requester:
         if "log_name" not in log_attribute:
             raise ValueError("log_attribute must have a log_name")
 
-        return self._post_to_fixpoint(
+        resp = self._post_to_fixpoint(
             url, typing.cast(typing.Dict[str, typing.Any], request)
         )
+        log_attr_resp = typing.cast(types.CreateLogLogAttributeResponse, resp.json())
+        return log_attr_resp["logAttribute"]
 
     @debug_log_function_io
     def _post_to_fixpoint(

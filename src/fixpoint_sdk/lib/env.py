@@ -24,3 +24,27 @@ def get_fixpoint_api_key(api_key: typing.Optional[str]) -> str:
         print("FIXPOINT_API_KEY env variable is empty.")
         raise InitException("Fixpoint API key is empty")
     return key
+
+
+BASE_URL = "https://api.fixpoint.co"
+_FIXPOINT_BASE_URL_ENV_KEY = "FIXPOINT_API_BASE_URL"
+
+
+def get_api_base_url(base_url: typing.Optional[str]) -> str:
+    """Returns the API base URL for Fixpoint. If not set, returns the default."""
+    burl = _get_api_base_url(base_url)
+    if burl[-1] == "/":
+        return burl[:-1]
+    return burl
+
+
+def _get_api_base_url(base_url: typing.Optional[str]) -> str:
+    if base_url:
+        return base_url
+    if _FIXPOINT_BASE_URL_ENV_KEY in os.environ:
+        base_url = os.environ[_FIXPOINT_BASE_URL_ENV_KEY]
+        if not base_url:
+            print(f"{_FIXPOINT_BASE_URL_ENV_KEY} env variable is empty.")
+            raise InitException("Fixpoint API base URL is empty")
+        return base_url
+    return BASE_URL

@@ -97,7 +97,7 @@ class CreateUserFeedbackResponse(TypedDict):
     success: bool
 
 
-class LogAttribute(TypedDict):
+class LogAttributePartial(TypedDict):
     """A log attribute."""
 
     log_name: str
@@ -108,4 +108,20 @@ class LogAttribute(TypedDict):
 class CreateLogAttributeRequest(TypedDict):
     """Request to create a log attribute."""
 
-    log_attribute: LogAttribute
+    log_attribute: LogAttributePartial
+
+
+class LogAttribute(TypedDict):
+    """An attribute attached to an LLM log."""
+
+    name: str
+    logName: str
+    key: str
+    value: str
+    orgId: str
+
+
+class CreateLogLogAttributeResponse(TypedDict):
+    """Response to a CreateLogAttributeRequest."""
+
+    logAttribute: LogAttribute
