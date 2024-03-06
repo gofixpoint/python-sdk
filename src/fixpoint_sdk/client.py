@@ -4,9 +4,8 @@ import typing
 
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
-import requests
 
-from .lib.env import get_fixpoint_api_key
+from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
 from .lib.debugging import dprint
 from . import types
@@ -27,7 +26,7 @@ class FixpointClient:
         _api_key = get_fixpoint_api_key(fixpoint_api_key)
 
         self._api_key = _api_key
-        self._requester = Requester(self._api_key, api_base_url)
+        self._requester = Requester(self._api_key, get_api_base_url(api_base_url))
         if openai_api_key:
             kwargs = dict(kwargs, api_key=openai_api_key)
         self.client = OpenAI(*args, **kwargs)
@@ -55,7 +54,7 @@ class FixpointClient:
 
             def create(
                 self, request: types.CreateLogAttributeRequest
-            ) -> requests.Response:
+            ) -> types.LogAttribute:
                 """Attach a log attribute to an LLM log."""
                 return self._requester.create_attribute(request)
 
