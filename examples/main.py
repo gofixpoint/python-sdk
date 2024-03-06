@@ -42,6 +42,24 @@ def main() -> None:
         )
     )
 
+    # You can use the Fixpoint API in different environment modes: "test",
+    # "staging", and "prod".
+    # This is useful to make sure that your logged production traffic does not
+    # get cluttered with test data or staging data.
+    # If you do not specify a mode, we default to "prod".
+    for env_mode in ["test", "staging", "prod"]:
+        client.chat.completions.create(
+            model="gpt-3.5-turbo-0125",
+            mode=env_mode,
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"You are a helpful assistant running in {env_mode} mode.",
+                },
+                {"role": "user", "content": "What are you?"},
+            ],
+        )
+
     # Record user feedback. One user giving a thumbs up to a log, the other giving a thumbs down.
     # The `user_id` you specify should be your own system's user identifier for
     # whoever gave the feedback.
