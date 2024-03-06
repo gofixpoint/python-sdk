@@ -115,12 +115,15 @@ class OutputLog(TypedDict):
     name: str
 
 
-class UserFeedbackLike(TypedDict):
-    """A user feedback like."""
-
+class _UserFeedbackLike(TypedDict):
     log_name: str
     thumbs_reaction: ThumbsReaction
     user_id: str
+
+
+class UserFeedbackLike(_UserFeedbackLike, total=False):
+    """A user feedback like."""
+
     origin: Optional[OriginType]
 
 
