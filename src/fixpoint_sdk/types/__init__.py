@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, asdict
 import enum
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict, Union
 from openai.types.chat import ChatCompletionMessageParam
 
 
@@ -40,6 +40,26 @@ class ModeType(enum.Enum):
     MODE_PROD = 3
 
 
+def parse_mode_type(mode: Optional[Union[str, int, object]] = None) -> ModeType:
+    """Parse a mode type from a string."""
+    if mode is None:
+        return ModeType.MODE_UNSPECIFIED
+
+    if isinstance(mode, int):
+        return ModeType(mode)
+
+    if isinstance(mode, str):
+        if mode == "unspecified":
+            return ModeType.MODE_UNSPECIFIED
+        if mode == "test":
+            return ModeType.MODE_TEST
+        if mode == "staging":
+            return ModeType.MODE_STAGING
+        if mode == "prod":
+            return ModeType.MODE_PROD
+    raise ValueError(f"Unknown mode: {mode}")
+
+
 @dataclass
 class CreateLLMInputLogRequest:
     """Request to create a log of a chat completion input."""
@@ -53,7 +73,11 @@ class CreateLLMInputLogRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert this request to a dictionary."""
-        return asdict(self)
+        d = asdict(self)
+        # convert this to a JSON-serializable type
+        if self.mode is not None:
+            d["mode"] = self.mode.value
+        return d
 
 
 class OpenAILLMInputLog(TypedDict, total=False):

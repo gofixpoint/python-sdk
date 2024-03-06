@@ -2,6 +2,6 @@
 
 from .client import FixpointClient
 from . import types
-from .types import ThumbsReaction
+from .types import ThumbsReaction, ModeType
 
-__all__ = ["FixpointClient", "ThumbsReaction", "types"]
+__all__ = ["FixpointClient", "ThumbsReaction", "ModeType", "types"]

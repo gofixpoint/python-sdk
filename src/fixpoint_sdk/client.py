@@ -67,8 +67,12 @@ class FixpointClient:
             self, *args: typing.Any, **kwargs: typing.Any
         ) -> typing.Tuple[ChatCompletion, typing.Any, typing.Any]:
             """Create an OpenAI completion and log the LLM input and output."""
+            # Do not mutate the input kwargs. That is an unexpected behavior for
+            # our caller.
+            kwargs = kwargs.copy()
             # Extract trace_id from kwargs, if it exists, otherwise set it to None
             trace_id = kwargs.pop("trace_id", None)
+            mode_type = types.parse_mode_type(kwargs.pop("mode", "unspecified"))
 
             # Deep copy the kwargs to avoid modifying the original
             req_copy = kwargs.copy()
@@ -82,6 +86,7 @@ class FixpointClient:
                 # TODO(dbmikus) fix sloppy typing
                 typing.cast(types.OpenAILLMInputLog, req_copy),
                 trace_id=trace_id,
+                mode=mode_type,
             )
             dprint(f'Created an input log: {input_resp["name"]}')
 
@@ -91,7 +96,11 @@ class FixpointClient:
 
             # Send HTTP request after calling create
             output_resp = self._requester.create_openai_output_log(
-                req_copy["model_name"], input_resp, openai_response, trace_id=trace_id
+                req_copy["model_name"],
+                input_resp,
+                openai_response,
+                trace_id=trace_id,
+                mode=mode_type,
             )
             dprint(f"Created an output log: {output_resp['name']}")
 
