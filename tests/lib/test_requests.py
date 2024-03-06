@@ -31,7 +31,7 @@ class CallbackRequester(fixrequests.Requester):
     def __init__(
         self,
         api_key: str,
-        base_url: typing.Optional[str],
+        base_url: str,
     ):
         def callback(url: str, request: typing.Any, response: typing.Any) -> None:
             self.calls.append(CallRecords(url, request, response))
@@ -60,7 +60,7 @@ def test_create_openai_input_log() -> None:
 
 
 def new_create_openai_input_log_args() -> (
-    typing.Tuple[str, fixtypes.OpenAILLMInputLog, str]
+    typing.Tuple[str, fixtypes.OpenAILLMInputLog, str, fixtypes.ModeType]
 ):
     model_name = "gpt-3.5-turbo-0125"
     messages: typing.List[ChatCompletionMessageParam] = [
@@ -69,7 +69,7 @@ def new_create_openai_input_log_args() -> (
     ]
     trace_id = "trace-id-in"
     openai_req: fixtypes.OpenAILLMInputLog = {"messages": messages, "user": "dylan-uid"}
-    mode = fixtypes.ModeType.MODE_TEST.value
+    mode = fixtypes.ModeType.MODE_TEST
     return model_name, openai_req, trace_id, mode
 
 
@@ -123,7 +123,7 @@ def test_create_openai_output_log() -> None:
 
 
 def new_create_openai_output_log_args() -> (
-    typing.Tuple[str, fixtypes.InputLog, ChatCompletion, str]
+    typing.Tuple[str, fixtypes.InputLog, ChatCompletion, str, fixtypes.ModeType]
 ):
     model_name = "gpt-3.5-turbo-0125"
     input_log_results: fixtypes.InputLog = {

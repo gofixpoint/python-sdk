@@ -75,9 +75,8 @@ class CreateLLMInputLogRequest:
         """Convert this request to a dictionary."""
         d = asdict(self)
         # convert this to a JSON-serializable type
-        mode = d["mode"]
-        if mode is not None:
-            d["mode"] = mode.value
+        if self.mode is not None:
+            d["mode"] = self.mode.value
         return d
 
 
