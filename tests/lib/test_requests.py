@@ -69,7 +69,8 @@ def new_create_openai_input_log_args() -> (
     ]
     trace_id = "trace-id-in"
     openai_req: fixtypes.OpenAILLMInputLog = {"messages": messages, "user": "dylan-uid"}
-    return model_name, openai_req, trace_id
+    mode = fixtypes.ModeType.MODE_TEST.value
+    return model_name, openai_req, trace_id, mode
 
 
 def new_create_openai_input_log_post_request() -> (
@@ -85,6 +86,7 @@ def new_create_openai_input_log_post_request() -> (
         "user_id": "dylan-uid",
         "trace_id": "trace-id-in",
         "temperature": None,
+        "mode": fixtypes.ModeType.MODE_TEST.value,
     }
     return request_url, request_json
 
@@ -101,6 +103,7 @@ def new_create_openai_input_log_output() -> typing.Dict[str, typing.Any]:
         "temperature": 0,
         "createdAt": None,
         "traceId": "trace-id-in",
+        "mode": fixtypes.ModeType.MODE_TEST.value,
     }
 
 
@@ -157,7 +160,8 @@ def new_create_openai_output_log_args() -> (
         usage=CompletionUsage(completion_tokens=23, prompt_tokens=21, total_tokens=44),
     )
     trace_id = "trace-id-out"
-    return model_name, input_log_results, open_ai_response, trace_id
+    mode = fixtypes.ModeType.MODE_TEST
+    return model_name, input_log_results, open_ai_response, trace_id, mode
 
 
 def new_create_openai_output_log_post_request() -> (
@@ -182,6 +186,7 @@ def new_create_openai_output_log_post_request() -> (
         ],
         "usage": {"completion_tokens": 23, "prompt_tokens": 21, "total_tokens": 44},
         "trace_id": "trace-id-out",
+        "mode": fixtypes.ModeType.MODE_TEST.value,
     }
     return request_url, request_json
 
@@ -205,6 +210,7 @@ def new_create_openai_output_log_output() -> typing.Dict[str, typing.Any]:
         ],
         "usage": None,
         "traceId": "trace-id-out",
+        "mode": fixtypes.ModeType.MODE_TEST.value,
     }
 
 
