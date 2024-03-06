@@ -26,7 +26,7 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Publish to PyPI prod repository
-        run: python -m twine upload --non-interactive --repository pypi dist/*
+        run: python -m twine upload --verbose --non-interactive --repository pypi dist/*
         working-directory: ${{ github.workspace }}
         env:
           TWINE_USERNAME: __token__
