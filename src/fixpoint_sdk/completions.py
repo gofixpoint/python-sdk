@@ -5,6 +5,8 @@ import typing
 from openai import OpenAI
 from openai._streaming import Stream
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
+from openai.types.chat.chat_completion import Choice
+from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
 from .lib.requests import Requester
 from .lib.debugging import dprint
@@ -46,21 +48,59 @@ class FixpointChatCompletionStream:
             yield item
 
     def _combine_chunks(self) -> types.Union[ChatCompletion, None]:
-        return _combine_chunks(self._outputs)
+        return combine_chunks(self._outputs)
 
 
-def _combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> types.Union[ChatCompletion, None]:
+def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> types.Union[ChatCompletion, None]:
     if len(chunks) == 0:
         return None
 
-    chatid = ""
-    choices = []
+    num_choices = None
     for chunk in chunks:
-        chatid = chunk.id
-        pass
+        if num_choices is None:
+            num_choices = len(chunk.choices)
+        elif num_choices != len(chunk.choices):
+            raise ValueError("All chunks must have the same number of choices")
 
-    # return ChatCompletion(id=)
-    return None
+    chatid = ""
+    created = 0
+    model = ""
+    choice_contents = [[] for _ in range(num_choices)]
+    choice_roles = ["" for _ in range(num_choices)]
+    finish_reasons = [None for _ in range(num_choices)]
+    for chunk in chunks:
+        # all `id` and `created` values are the same.
+        chatid = chunk.id
+        created = chunk.created
+        model = chunk.model
+        for choice in chunk.choices:
+            if choice.delta.role:
+                # only the first chunk has a set role
+                choice_roles[choice.index] = choice.delta.role
+            choice_contents[choice.index].append(choice.delta.content)
+            finish_reasons[choice.index] = choice.finish_reason
+
+    final_choices = []
+    for i, choice in enumerate(choice_contents):
+        final_choices.append(Choice(
+            index=i,
+            finish_reason=finish_reasons[i],
+            log_probs=None,
+            message=ChatCompletionMessage(
+                role=choice_roles[i],
+                content="".join(choice_contents[i])
+            )
+        ))
+
+    return ChatCompletion(
+        id=chatid,
+        created=created,
+        model=model,
+        object='chat.completion',
+        # The server will compute this when logging
+        usage=None,
+        choices=final_choices
+    )
 
 
 
