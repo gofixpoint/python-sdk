@@ -5,9 +5,9 @@ import typing
 
 from openai.types import CompletionUsage
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
-from openai.types.chat.chat_completion import Choice
+from openai.types.chat.chat_completion import Choice as CompletionChoice
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
-from openai.types.chat.chat_completion_chunk import ChoiceDelta
+from openai.types.chat.chat_completion_chunk import ChoiceDelta, Choice
 from fixpoint_sdk.completions import combine_chunks
 
 COMPLETION_ID = 'chatcmpl-95LUxn8nTls6Ti5ES1D5LRXv4lwTg'
@@ -58,7 +58,7 @@ def new_chat_completion() -> ChatCompletion:
     return ChatCompletion(
         id=COMPLETION_ID,
         choices=[
-            Choice(
+            CompletionChoice(
                 finish_reason='stop',
                 index=0,
                 logprobs=None,

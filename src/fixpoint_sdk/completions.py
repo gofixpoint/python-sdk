@@ -77,7 +77,8 @@ def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> types.Union[Chat
             if choice.delta.role:
                 # only the first chunk has a set role
                 choice_roles[choice.index] = choice.delta.role
-            choice_contents[choice.index].append(choice.delta.content)
+            if choice.delta.content is not None:
+                choice_contents[choice.index].append(choice.delta.content)
             finish_reasons[choice.index] = choice.finish_reason
 
     final_choices = []
@@ -85,7 +86,7 @@ def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> types.Union[Chat
         final_choices.append(Choice(
             index=i,
             finish_reason=finish_reasons[i],
-            log_probs=None,
+            logprobs=None,
             message=ChatCompletionMessage(
                 role=choice_roles[i],
                 content="".join(choice_contents[i])
