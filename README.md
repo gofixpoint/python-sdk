@@ -24,21 +24,18 @@ To create a virtual environment called `venv` from your terminal run `python3 -m
 
 #### Install packages
 
-To install packages from `requirements.txt` in your virtual environment using
-`pip` run: `pip install -r requirements.txt`.
-
-If you want to install from the dependencies in `pyproject.toml` and not from
-the `requirement.txt`, you can run:
+To install the package locally for development:
 
 ```
-pip install .
-
-# or in "editable mode" so your install changes as you update the source code:
+# in "editable mode" so your install changes as you update the source code:
 pip install -e .
 
 # and to install dev dependencies
 pip install -e '.[dev]'
 ```
+
+In general, you should not install from the `requirements.txt` file, instead
+following the installation method suggested above.
 
 #### Deactivate
 
