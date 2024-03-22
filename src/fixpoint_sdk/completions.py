@@ -47,17 +47,19 @@ class FixpointChatCompletionStream:
         for item in self._stream:
             yield item
 
-    def _combine_chunks(self) -> types.Union[ChatCompletion, None]:
+    def _combine_chunks(self) -> typing.Union[ChatCompletion, None]:
         return combine_chunks(self._outputs)
 
 
-def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> types.Union[ChatCompletion, None]:
-    if len(chunks) == 0:
-        return None
+FinishReason = typing.Literal["stop", "length", "tool_calls", "content_filter", "function_call"]
 
-    num_choices = None
+def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> ChatCompletion:
+    if len(chunks) == 0:
+        raise ValueError("Must have at least one chunk")
+
+    num_choices = 0
     for chunk in chunks:
-        if num_choices is None:
+        if num_choices is 0:
             num_choices = len(chunk.choices)
         elif num_choices != len(chunk.choices):
             raise ValueError("All chunks must have the same number of choices")
@@ -65,31 +67,31 @@ def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> types.Union[Chat
     chatid = ""
     created = 0
     model = ""
-    choice_contents = [[] for _ in range(num_choices)]
-    choice_roles = ["" for _ in range(num_choices)]
-    finish_reasons = [None for _ in range(num_choices)]
+    choice_contents: typing.List[typing.List[str]] = [[] for _ in range(num_choices)]
+    # default to "assistant" for typing reasons
+    # default to "stop" for typing reasons
+    finish_reasons: typing.List[FinishReason] = ['stop' for _ in range(num_choices)]
     for chunk in chunks:
         # all `id` and `created` values are the same.
         chatid = chunk.id
         created = chunk.created
         model = chunk.model
         for choice in chunk.choices:
-            if choice.delta.role:
-                # only the first chunk has a set role
-                choice_roles[choice.index] = choice.delta.role
             if choice.delta.content is not None:
                 choice_contents[choice.index].append(choice.delta.content)
-            finish_reasons[choice.index] = choice.finish_reason
+            # default to "stop" for typing reasons
+            finish_reasons[choice.index] = choice.finish_reason or 'stop'
 
     final_choices = []
-    for i, choice in enumerate(choice_contents):
+    for i, choice_content in enumerate(choice_contents):
         final_choices.append(Choice(
             index=i,
             finish_reason=finish_reasons[i],
             logprobs=None,
             message=ChatCompletionMessage(
-                role=choice_roles[i],
-                content="".join(choice_contents[i])
+                # all output roles are assistants
+                role='assistant',
+                content="".join(choice_content)
             )
         ))
 
@@ -112,7 +114,7 @@ class Completions:
 
     def create(
         self, *args: typing.Any, **kwargs: typing.Any
-    ) -> typing.Tuple[ChatCompletion, Stream[ChatCompletionChunk]]:
+    ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]:
         """Create an OpenAI completion and log the LLM input and output."""
         # Do not mutate the input kwargs. That is an unexpected behavior for
         # our caller.
@@ -151,7 +153,11 @@ class Completions:
         )
         dprint(f"Created an output log: {output_resp['name']}")
 
-        return openai_response, input_resp, output_resp
+        return FixpointChatCompletion(
+            completion=openai_response,
+            input_log=input_resp,
+            output_log=output_resp,
+        )
 
 
 class Chat:

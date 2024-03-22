@@ -8,7 +8,8 @@ from openai.types.chat import ChatCompletion, ChatCompletionChunk
 from openai.types.chat.chat_completion import Choice as CompletionChoice
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from openai.types.chat.chat_completion_chunk import ChoiceDelta, Choice
-from fixpoint_sdk.completions import combine_chunks
+
+from fixpoint_sdk.completions import combine_chunks, FinishReason
 
 COMPLETION_ID = 'chatcmpl-95LUxn8nTls6Ti5ES1D5LRXv4lwTg'
 CREATED = 1711061307
@@ -80,8 +81,8 @@ def zip_choices(
     chunks1: typing.List[ChatCompletionChunk],
     chunks2: typing.List[ChatCompletionChunk],
     append_text: typing.Optional[str] = None,
-    drop_indexes: typing.Optional[typing.Set[bool]] = None,
-    finish_reason: str = 'stop',
+    drop_indexes: typing.Optional[typing.Set[int]] = None,
+    finish_reason: FinishReason = 'stop',
 ) -> typing.List[ChatCompletionChunk]:
     """Zips chunks2 into chunks1, overwriting the choices in chunks1."""
     if not drop_indexes:
