@@ -33,6 +33,7 @@ def main() -> None:
     # pylint: disable=not-an-iterable
     for chunk in resp:
         content = chunk.choices[0].delta.content
+        print(f"token: {content}")
         if content:
             text_contents.append(content)
     print(f"Output text: {''.join(text_contents)}")

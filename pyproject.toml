@@ -1,10 +1,13 @@
+[project]
+name = "fixpoint_sdk"
+version = "0.2.1"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project]
-name = "fixpoint_sdk"
-version = "0.2.1"
+[tool.hatch.metadata]
+packages = [{include = "fixpoint"}, {include = "fixpoint_sdk"}]
 
 authors = [
 { name="Jakub Cichon", email="jakub@fixpoint.co" },
