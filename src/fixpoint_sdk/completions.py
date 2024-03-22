@@ -70,6 +70,7 @@ class FixpointChatCompletionStream:
                     trace_id=self._trace_id,
                     mode=self._mode_type,
                 )
+                dprint(f"Created an output log: {output_resp['name']}")
                 self.output_log = output_resp
             # pylint: disable=broad-exception-caught
             except Exception:
@@ -78,7 +79,7 @@ class FixpointChatCompletionStream:
             raise
 
     def __iter__(self) -> typing.Iterator[ChatCompletionChunk]:
-        yield from self._stream
+        return self
 
 
 FinishReason = typing.Literal[
@@ -189,24 +190,37 @@ class Completions:
         )
         dprint(f'Created an input log: {input_resp["name"]}')
 
+        stream = kwargs["stream"]
         # Make create call to OPEN AI
         openai_response = self.client.chat.completions.create(*args, **kwargs)
-        dprint(f"Received an openai response: {openai_response.id}")
+        if stream:
+            dprint("Received an openai response stream")
+        else:
+            dprint(f"Received an openai response: {openai_response.id}")
 
-        # Send HTTP request after calling create
-        output_resp = self._requester.create_openai_output_log(
-            req_copy["model_name"],
-            input_resp,
-            openai_response,
-            trace_id=trace_id,
-            mode=mode_type,
-        )
-        dprint(f"Created an output log: {output_resp['name']}")
+        if not stream:
+            # Send HTTP request after calling create
+            output_resp = self._requester.create_openai_output_log(
+                req_copy["model_name"],
+                input_resp,
+                openai_response,
+                trace_id=trace_id,
+                mode=mode_type,
+            )
+            dprint(f"Created an output log: {output_resp['name']}")
+            return FixpointChatCompletion(
+                completion=openai_response,
+                input_log=input_resp,
+                output_log=output_resp,
+            )
 
-        return FixpointChatCompletion(
-            completion=openai_response,
+        return FixpointChatCompletionStream(
+            stream=openai_response,
             input_log=input_resp,
-            output_log=output_resp,
+            mode_type=mode_type,
+            requester=self._requester,
+            trace_id=trace_id,
+            model_name=req_copy["model_name"],
         )
 
 

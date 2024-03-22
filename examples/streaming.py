@@ -39,3 +39,7 @@ def main() -> None:
     output_log = resp.output_log
     assert output_log is not None
     print(f"Logged output with ID/name: {output_log['name']}")
+
+
+if __name__ == "__main__":
+    main()
