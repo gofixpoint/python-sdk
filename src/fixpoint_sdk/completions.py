@@ -190,7 +190,7 @@ class Completions:
         )
         dprint(f'Created an input log: {input_resp["name"]}')
 
-        stream = kwargs["stream"]
+        stream = kwargs.get("stream", False)
         # Make create call to OPEN AI
         openai_response = self.client.chat.completions.create(*args, **kwargs)
         if stream:

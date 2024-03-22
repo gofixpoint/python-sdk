@@ -34,6 +34,19 @@ pip install -e .
 pip install -e '.[dev]'
 ```
 
+If you get an error like:
+
+> ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: /home/dbmikus/workspace/github.com/gofixpoint/python-sdk
+> (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
+
+Try upgrading pip and retrying:
+
+```
+pip install --upgrade pip
+pip install -e .
+```
+
+
 In general, you should not install from the `requirements.txt` file, instead
 following the installation method suggested above.
 
