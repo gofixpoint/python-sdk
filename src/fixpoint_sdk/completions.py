@@ -17,12 +17,15 @@ from . import types
 
 @dataclass
 class FixpointChatCompletion:
+    """Wraps the OpenAI chat completion with logging data."""
+
     completion: ChatCompletion
     input_log: types.InputLog
     output_log: types.OutputLog
 
 
 class FixpointChatCompletionStream:
+    """Wraps the OpenAI chat completion stream with logging data."""
 
     _stream: Stream[ChatCompletionChunk]
     input_log: types.InputLog
@@ -33,7 +36,16 @@ class FixpointChatCompletionStream:
     _trace_id: typing.Optional[str]
     _model_name: str
 
-    def __init__(self, *, stream: Stream[ChatCompletionChunk], input_log: types.InputLog, mode_type: types.ModeType, requester: Requester, trace_id: typing.Optional[str] = None, model_name: str):
+    def __init__(
+        self,
+        *,
+        stream: Stream[ChatCompletionChunk],
+        input_log: types.InputLog,
+        mode_type: types.ModeType,
+        requester: Requester,
+        trace_id: typing.Optional[str] = None,
+        model_name: str,
+    ):
         self._stream = stream
         self.input_log = input_log
         self.output_log = None
@@ -50,30 +62,38 @@ class FixpointChatCompletionStream:
             return last_output
         except StopIteration:
             # Send HTTP request after calling create
-            output_resp = self._requester.create_openai_output_log(
-                self._model_name,
-                self.input_log,
-                combine_chunks(self._outputs),
-                trace_id=self._trace_id,
-                mode=self._mode_type,
-            )
-            self.output_log = output_resp
+            try:
+                output_resp = self._requester.create_openai_output_log(
+                    self._model_name,
+                    self.input_log,
+                    combine_chunks(self._outputs),
+                    trace_id=self._trace_id,
+                    mode=self._mode_type,
+                )
+                self.output_log = output_resp
+            # pylint: disable=broad-exception-caught
+            except Exception:
+                # TODO(dbmikus) log the error here, but don't pollute client logs
+                pass
             raise
 
     def __iter__(self) -> typing.Iterator[ChatCompletionChunk]:
-        for item in self._stream:
-            yield item
+        yield from self._stream
 
 
-FinishReason = typing.Literal["stop", "length", "tool_calls", "content_filter", "function_call"]
+FinishReason = typing.Literal[
+    "stop", "length", "tool_calls", "content_filter", "function_call"
+]
+
 
 def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> ChatCompletion:
+    """Combine chunks from a stream into one full completion object."""
     if len(chunks) == 0:
         raise ValueError("Must have at least one chunk")
 
     num_choices = 0
     for chunk in chunks:
-        if num_choices is 0:
+        if num_choices == 0:
             num_choices = len(chunk.choices)
         elif num_choices != len(chunk.choices):
             raise ValueError("All chunks must have the same number of choices")
@@ -84,7 +104,7 @@ def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> ChatCompletion:
     choice_contents: typing.List[typing.List[str]] = [[] for _ in range(num_choices)]
     # default to "assistant" for typing reasons
     # default to "stop" for typing reasons
-    finish_reasons: typing.List[FinishReason] = ['stop' for _ in range(num_choices)]
+    finish_reasons: typing.List[FinishReason] = ["stop" for _ in range(num_choices)]
     for chunk in chunks:
         # all `id` and `created` values are the same.
         chatid = chunk.id
@@ -94,34 +114,37 @@ def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> ChatCompletion:
             if choice.delta.content is not None:
                 choice_contents[choice.index].append(choice.delta.content)
             # default to "stop" for typing reasons
-            finish_reasons[choice.index] = choice.finish_reason or 'stop'
+            finish_reasons[choice.index] = choice.finish_reason or "stop"
 
     final_choices = []
     for i, choice_content in enumerate(choice_contents):
-        final_choices.append(Choice(
-            index=i,
-            finish_reason=finish_reasons[i],
-            logprobs=None,
-            message=ChatCompletionMessage(
-                # all output roles are assistants
-                role='assistant',
-                content="".join(choice_content)
+        final_choices.append(
+            Choice(
+                index=i,
+                finish_reason=finish_reasons[i],
+                logprobs=None,
+                message=ChatCompletionMessage(
+                    # all output roles are assistants
+                    role="assistant",
+                    content="".join(choice_content),
+                ),
             )
-        ))
+        )
 
     return ChatCompletion(
         id=chatid,
         created=created,
         model=model,
-        object='chat.completion',
+        object="chat.completion",
         # The server will compute this when logging
         usage=None,
-        choices=final_choices
+        choices=final_choices,
     )
 
 
-
 class Completions:
+    """Create chat completion inferences and log them."""
+
     def __init__(self, requester: Requester, client: OpenAI):
         self.client = client
         self._requester = requester
@@ -131,18 +154,13 @@ class Completions:
         self,
         *args: typing.Any,
         stream: Optional[Literal[False]] = None,
-        **kwargs: typing.Any
-    ) -> FixpointChatCompletion:
-        ...
+        **kwargs: typing.Any,
+    ) -> FixpointChatCompletion: ...
 
     @typing.overload
     def create(
-        self,
-        *args: typing.Any,
-        stream: Literal[True],
-        **kwargs: typing.Any
-    ) -> FixpointChatCompletionStream:
-        ...
+        self, *args: typing.Any, stream: Literal[True], **kwargs: typing.Any
+    ) -> FixpointChatCompletionStream: ...
 
     def create(
         self, *args: typing.Any, **kwargs: typing.Any
@@ -193,5 +211,7 @@ class Completions:
 
 
 class Chat:
+    """The Chat class lets you interact with the underlying chat APIs."""
+
     def __init__(self, requester: Requester, client: OpenAI):
         self.completions = Completions(requester, client)

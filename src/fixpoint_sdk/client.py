@@ -56,4 +56,3 @@ class FixpointClient:
             ) -> types.LogAttribute:
                 """Attach a log attribute to an LLM log."""
                 return self._requester.create_attribute(request)
-
