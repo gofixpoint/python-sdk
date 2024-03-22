@@ -3,12 +3,11 @@
 import typing
 
 from openai import OpenAI
-from openai.types.chat import ChatCompletion
 
 from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
-from .lib.debugging import dprint
 from . import types
+from .completions import Chat
 
 
 class FixpointClient:
@@ -30,7 +29,7 @@ class FixpointClient:
         if openai_api_key:
             kwargs = dict(kwargs, api_key=openai_api_key)
         self.client = OpenAI(*args, **kwargs)
-        self.chat = self._Chat(self._requester, self.client)
+        self.chat = Chat(self._requester, self.client)
         self.fixpoint = self._Fixpoint(self._requester)
 
     class _Fixpoint:

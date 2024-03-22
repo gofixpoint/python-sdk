@@ -17,29 +17,28 @@ def main() -> None:
     # Call create method on FixpointClient instance. You can specify a user to
     # associate with the request. The user will be automatically passed through
     # to OpenAI's API.
-    openai_response, fixpoint_input_log_response, fixpoint_output_log_response = (
-        client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "What are you?"},
-            ],
-            user="some-user-id",
-        )
+    resp1 = client.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What are you?"},
+        ],
+        user="some-user-id",
     )
+    openai_response = resp1.completion
+    fixpoint_input_log_response = resp1.input_log
+    fixpoint_output_log_response = resp1.output_log
 
     # If you make multiple calls to an LLM that are all part of the same "trace"
     # (e.g. a multi-step chain of prompts), you can pass in a trace_id to
     # associate them together.
-    openai_response2, fixpoint_input_log_response2, fixpoint_output_log_response2 = (
-        client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "What are you?"},
-            ],
-            trace_id="some-trace-id",
-        )
+    resp2 = client.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What are you?"},
+        ],
+        trace_id="some-trace-id",
     )
 
     # You can use the Fixpoint API in different environment modes: "test",
@@ -72,7 +71,7 @@ def main() -> None:
                     "user_id": "some-user-id",
                 },
                 {
-                    "log_name": fixpoint_input_log_response2["name"],
+                    "log_name": resp2.input_log["name"],
                     "thumbs_reaction": ThumbsReaction.THUMBS_DOWN,
                     "user_id": "some-other-user-id",
                 },

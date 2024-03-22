@@ -12,9 +12,9 @@ def main() -> None:
     # Call create method on FixpointClient instance. You can specify a user to
     # associate with the request. The user will be automatically passed through
     # to OpenAI's API.
-    openai_response, fixpoint_input_log_response, fixpoint_output_log_response = (
+    resp = (
         client.chat.completions.create(
-            streaming=True,
+            stream=True,
             model="gpt-3.5-turbo-0125",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
@@ -23,3 +23,16 @@ def main() -> None:
             user="some-user-id",
         )
     )
+    print(f"Logged input with ID/name: {resp.input_log['name']}")
+    # The output log is not available until we have streamed all outputs
+    output_log = resp.output_log
+    assert output_log is None
+    text_contents = []
+    for chunk in resp:
+        content = chunk.choices[0].delta.content
+        if content:
+            text_contents.append(content)
+    print(f"Output text: {''.join(text_contents)}")
+    output_log = resp.output_log
+    assert output_log is not None
+    print(f"Logged output with ID/name: {output_log['name']}")

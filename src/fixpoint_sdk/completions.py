@@ -1,6 +1,8 @@
 """Code for chat completions."""
 
 import typing
+from typing import Optional, Literal
+from dataclasses import dataclass
 
 from openai import OpenAI
 from openai._streaming import Stream
@@ -13,32 +15,47 @@ from .lib.debugging import dprint
 from . import types
 
 
+@dataclass
 class FixpointChatCompletion:
-    def __init__(self, completion: ChatCompletion, input_log: types.InputLog, output_log: types.OutputLog):
-        self.completion = completion
-        self.input_log = input_log
-        self.output_log = output_log
+    completion: ChatCompletion
+    input_log: types.InputLog
+    output_log: types.OutputLog
 
 
 class FixpointChatCompletionStream:
-    def __init__(self, stream: Stream[ChatCompletionChunk], input_log: types.InputLog):
+
+    _stream: Stream[ChatCompletionChunk]
+    input_log: types.InputLog
+    output_log: typing.Optional[types.OutputLog]
+    _outputs: typing.List[ChatCompletionChunk]
+    _mode_type: types.ModeType
+    _requester: Requester
+    _trace_id: typing.Optional[str]
+    _model_name: str
+
+    def __init__(self, *, stream: Stream[ChatCompletionChunk], input_log: types.InputLog, mode_type: types.ModeType, requester: Requester, trace_id: typing.Optional[str] = None, model_name: str):
         self._stream = stream
         self.input_log = input_log
         self.output_log = None
         self._outputs = []
+        self._mode_type = mode_type
+        self._requester = requester
+        self._trace_id = trace_id
+        self._model_name = model_name
 
     def __next__(self) -> ChatCompletionChunk:
         try:
-            self._last_output = self._stream.__next__()
-            return self._last_output
+            last_output = self._stream.__next__()
+            self._outputs.append(last_output)
+            return last_output
         except StopIteration:
             # Send HTTP request after calling create
             output_resp = self._requester.create_openai_output_log(
-                req_copy["model_name"],
+                self._model_name,
                 self.input_log,
-                openai_response,
-                trace_id=trace_id,
-                mode=mode_type,
+                combine_chunks(self._outputs),
+                trace_id=self._trace_id,
+                mode=self._mode_type,
             )
             self.output_log = output_resp
             raise
@@ -46,9 +63,6 @@ class FixpointChatCompletionStream:
     def __iter__(self) -> typing.Iterator[ChatCompletionChunk]:
         for item in self._stream:
             yield item
-
-    def _combine_chunks(self) -> typing.Union[ChatCompletion, None]:
-        return combine_chunks(self._outputs)
 
 
 FinishReason = typing.Literal["stop", "length", "tool_calls", "content_filter", "function_call"]
@@ -111,6 +125,24 @@ class Completions:
     def __init__(self, requester: Requester, client: OpenAI):
         self.client = client
         self._requester = requester
+
+    @typing.overload
+    def create(
+        self,
+        *args: typing.Any,
+        stream: Optional[Literal[False]] = None,
+        **kwargs: typing.Any
+    ) -> FixpointChatCompletion:
+        ...
+
+    @typing.overload
+    def create(
+        self,
+        *args: typing.Any,
+        stream: Literal[True],
+        **kwargs: typing.Any
+    ) -> FixpointChatCompletionStream:
+        ...
 
     def create(
         self, *args: typing.Any, **kwargs: typing.Any
