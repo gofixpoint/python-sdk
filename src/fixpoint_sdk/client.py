@@ -40,7 +40,7 @@ class FixpointClient:
             self.attributes = self._Attributes(requester)
 
             configuration = openapi_client.Configuration(
-                host = "http://localhost:8081",
+                host = get_api_base_url(requester.base_url),
             )
 
             api_client = openapi_client.ApiClient(

@@ -8,10 +8,6 @@ from openai.types.chat import ChatCompletion
 from .debugging import debug_log_function_io
 from .. import types
 
-
-# BASE_URL = "https://api.fixpoint.co"
-BASE_URL = "http://localhost:8081"
-
 DEFAULT_TIMEOUT_S = 60
 
 ApiCallback = typing.Callable[[str, typing.Any, typing.Any], None]
