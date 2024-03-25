@@ -26,7 +26,9 @@ def get_fixpoint_api_key(api_key: typing.Optional[str]) -> str:
     return key
 
 
-BASE_URL = "https://api.fixpoint.co"
+# BASE_URL = "https://api.fixpoint.co"
+BASE_URL = "http://localhost:8081"
+
 _FIXPOINT_BASE_URL_ENV_KEY = "FIXPOINT_API_BASE_URL"
 
 

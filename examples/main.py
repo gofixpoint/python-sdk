@@ -1,9 +1,10 @@
 """An example using the basics of the Fixpoint SDK."""
 
 # pylint: disable=unused-variable
-
+from pprint import pprint
 from fixpoint_sdk import FixpointClient, ThumbsReaction
-
+import openapi_client
+from openapi_client.rest import ApiException
 
 def main() -> None:
     """An example of using FixpointClient to make LLM calls and record feedback."""
@@ -89,7 +90,68 @@ def main() -> None:
             }
         }
     )
+    
+    # Define routing configuration
+    routeDict = {
+        "fallback_strategy": 1,
+        "description": "foo",
+        "terminal_state": 1,
+        "models": [
+            {
+                "provider": "openai",
+                "name": "gpt-3.5-turbo-0125",
+                "spend_cap": {
+                    "amount": "0.0001",
+                    "currency": "USD",
+                    "reset_interval": 1
+                }
+            },
+            {
+                "provider": "openai",
+                "name": "gpt-3.5-turbo-0301",
+                "spend_cap": {
+                    "amount": "0.0001",
+                    "currency": "USD",
+                    "reset_interval": 1
+                }
+            }
+        ]
+      }
 
+    routingConfig = openapi_client.V1CreateRoutingConfigRequest(
+        id="123",
+        fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
+        terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_ERROR,
+        models=[
+            openapi_client.V1Model(
+                provider="openai",
+                name="gpt-3.5-turbo-0125",
+                spend_cap=openapi_client.V1SpendCap(
+                    amount="0.0001",
+                    currency="USD",
+                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY
+                )
+            ),
+            openapi_client.V1Model(
+                provider="openai",
+                name="gpt-3.5-turbo-0301",
+                spend_cap=openapi_client.V1SpendCap(
+                    amount="0.0001",
+                    currency="USD",
+                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY
+                )
+            )
+        ],
+        description="This is a test routing config."
+    )    
+
+    try:
+        api_response = client.fixpoint.proxy_client.l_lm_proxy_create_routing_config(routingConfig)
+        print("The response of LLMProxyApi->l_lm_proxy_create_routing_config:\n")
+        pprint(api_response)
+    except ApiException as e:
+        print("Exception when calling LLMProxyApi->l_lm_proxy_create_api_secret: %s\n" % e)
+    
 
 if __name__ == "__main__":
     main()

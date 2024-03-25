@@ -9,6 +9,8 @@ from .lib.requests import Requester
 from . import types
 from .completions import Chat
 
+import openapi_client
+from openapi_client.rest import ApiException
 
 class FixpointClient:
     """The FixpointClient lets you interact with the Fixpoint API."""
@@ -36,6 +38,17 @@ class FixpointClient:
         def __init__(self, requester: Requester):
             self.user_feedback = self._UserFeedback(requester)
             self.attributes = self._Attributes(requester)
+
+            configuration = openapi_client.Configuration(
+                host = "http://localhost:8081",
+            )
+
+            api_client = openapi_client.ApiClient(
+                configuration,
+                header_name="Authorization",
+                header_value="Bearer {0}".format(requester.api_key),
+            )
+            self.proxy_client = openapi_client.LLMProxyApi(api_client)
 
         class _UserFeedback:
             def __init__(self, requester: Requester):
