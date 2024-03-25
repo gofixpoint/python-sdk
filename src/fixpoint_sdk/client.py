@@ -4,6 +4,10 @@ import typing
 
 from openai import OpenAI
 
+from fixpoint_sdk.openapi.gen.openapi_client.configuration import Configuration
+from fixpoint_sdk.openapi.gen.openapi_client.api_client import ApiClient
+from fixpoint_sdk.openapi.gen.openapi_client.api.llm_proxy_api import LLMProxyApi
+
 from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
 from . import types
@@ -36,6 +40,17 @@ class FixpointClient:
         def __init__(self, requester: Requester):
             self.user_feedback = self._UserFeedback(requester)
             self.attributes = self._Attributes(requester)
+
+            configuration = Configuration(
+                host=get_api_base_url(requester.base_url),
+            )
+
+            api_client = ApiClient(
+                configuration,
+                header_name="Authorization",
+                header_value=f"Bearer {0}".format(requester.api_key),
+            )
+            self.proxy_client = LLMProxyApi(api_client)
 
         class _UserFeedback:
             def __init__(self, requester: Requester):
