@@ -1,7 +1,7 @@
 """Code for chat completions."""
 
 import typing
-from typing import Optional, Literal
+from typing import Optional, Literal, Generator
 from dataclasses import dataclass
 
 from openai import OpenAI
@@ -12,6 +12,7 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
 from .lib.requests import Requester
 from .lib.debugging import dprint
+from .lib.iterwrapper import IterWrapper
 from . import types
 
 
@@ -46,21 +47,17 @@ class FixpointChatCompletionStream:
         trace_id: typing.Optional[str] = None,
         model_name: str,
     ):
-        self._stream = stream
         self.input_log = input_log
         self.output_log = None
-        self._outputs = []
         self._mode_type = mode_type
         self._requester = requester
         self._trace_id = trace_id
         self._model_name = model_name
 
-    def __next__(self) -> ChatCompletionChunk:
-        try:
-            last_output = self._stream.__next__()
-            self._outputs.append(last_output)
-            return last_output
-        except StopIteration:
+        self._stream = stream
+        self._outputs = []
+
+        def on_finish() -> None:
             # Send HTTP request after calling create
             try:
                 output_resp = self._requester.create_openai_output_log(
@@ -76,10 +73,27 @@ class FixpointChatCompletionStream:
             except Exception:
                 # TODO(dbmikus) log the error here, but don't pollute client logs
                 pass
-            raise
 
+        def on_error(exc: Exception) -> None:
+            raise exc
+
+        self._iter_wrapper = IterWrapper(
+            stream, on_iter=self._outputs.append, on_finish=on_finish, on_error=on_error
+        )
+
+    def __next__(self) -> ChatCompletionChunk:
+        return self._iter_wrapper.__next__()
+
+    # pylint: disable=use-yield-from
     def __iter__(self) -> typing.Iterator[ChatCompletionChunk]:
+        """Yield the chat completion chunks."""
         return self
+
+    @property
+    def completions(self) -> Generator[ChatCompletionChunk, None, None]:
+        """Yield the chat completion chunks."""
+        for chunk in self:
+            yield chunk
 
 
 FinishReason = typing.Literal[
