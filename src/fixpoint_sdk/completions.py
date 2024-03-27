@@ -154,17 +154,25 @@ class Completions:
     def create(
         self,
         *args: typing.Any,
+        mode: Optional[types.ModeArg] = None,
         stream: Optional[Literal[False]] = None,
         **kwargs: typing.Any,
     ) -> FixpointChatCompletion: ...
 
     @typing.overload
     def create(
-        self, *args: typing.Any, stream: Literal[True], **kwargs: typing.Any
+        self,
+        *args: typing.Any,
+        mode: Optional[types.ModeArg] = None,
+        stream: Literal[True],
+        **kwargs: typing.Any,
     ) -> FixpointChatCompletionStream: ...
 
     def create(
-        self, *args: typing.Any, **kwargs: typing.Any
+        self,
+        *args: typing.Any,
+        mode: Optional[types.ModeArg] = "unspecified",
+        **kwargs: typing.Any,
     ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]:
         """Create an OpenAI completion and log the LLM input and output."""
         # Do not mutate the input kwargs. That is an unexpected behavior for
@@ -172,7 +180,7 @@ class Completions:
         kwargs = kwargs.copy()
         # Extract trace_id from kwargs, if it exists, otherwise set it to None
         trace_id = kwargs.pop("trace_id", None)
-        mode_type = types.parse_mode_type(kwargs.pop("mode", "unspecified"))
+        mode_type = types.parse_mode_type(mode)
 
         # Deep copy the kwargs to avoid modifying the original
         req_copy = kwargs.copy()
