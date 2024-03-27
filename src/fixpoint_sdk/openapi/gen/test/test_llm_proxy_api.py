@@ -89,30 +89,6 @@ class TestLLMProxyApi(unittest.TestCase):
         """
         pass
 
-    def test_l_lm_proxy_get_evaluation(self) -> None:
-        """Test case for l_lm_proxy_get_evaluation
-
-        """
-        pass
-
-    def test_l_lm_proxy_get_evaluation_run(self) -> None:
-        """Test case for l_lm_proxy_get_evaluation_run
-
-        """
-        pass
-
-    def test_l_lm_proxy_get_experiment(self) -> None:
-        """Test case for l_lm_proxy_get_experiment
-
-        """
-        pass
-
-    def test_l_lm_proxy_get_experiment_run(self) -> None:
-        """Test case for l_lm_proxy_get_experiment_run
-
-        """
-        pass
-
     def test_l_lm_proxy_list_api_secrets(self) -> None:
         """Test case for l_lm_proxy_list_api_secrets
 
@@ -131,30 +107,6 @@ class TestLLMProxyApi(unittest.TestCase):
         """Test case for l_lm_proxy_list_datasets
 
         List LLM datasets
-        """
-        pass
-
-    def test_l_lm_proxy_list_evaluation_runs(self) -> None:
-        """Test case for l_lm_proxy_list_evaluation_runs
-
-        """
-        pass
-
-    def test_l_lm_proxy_list_evaluations(self) -> None:
-        """Test case for l_lm_proxy_list_evaluations
-
-        """
-        pass
-
-    def test_l_lm_proxy_list_experiment_runs(self) -> None:
-        """Test case for l_lm_proxy_list_experiment_runs
-
-        """
-        pass
-
-    def test_l_lm_proxy_list_experiments(self) -> None:
-        """Test case for l_lm_proxy_list_experiments
-
         """
         pass
 
@@ -183,12 +135,6 @@ class TestLLMProxyApi(unittest.TestCase):
         """Test case for l_lm_proxy_list_routing_configs
 
         List LLM routing configs
-        """
-        pass
-
-    def test_l_lm_proxy_ping(self) -> None:
-        """Test case for l_lm_proxy_ping
-
         """
         pass
 

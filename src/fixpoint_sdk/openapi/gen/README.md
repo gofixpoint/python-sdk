@@ -94,22 +94,13 @@ Class | Method | HTTP request | Description
 *LLMProxyApi* | [**l_lm_proxy_create_open_ai_chat_output_log**](docs/LLMProxyApi.md#l_lm_proxy_create_open_ai_chat_output_log) | **POST** /v1/openai_chats/{modelName}/output_logs | Create an LLM output log
 *LLMProxyApi* | [**l_lm_proxy_create_routing_config**](docs/LLMProxyApi.md#l_lm_proxy_create_routing_config) | **POST** /v1/routing_configs | Create LLM routing config
 *LLMProxyApi* | [**l_lm_proxy_delete_log_attribute**](docs/LLMProxyApi.md#l_lm_proxy_delete_log_attribute) | **DELETE** /v1/attributes/{name} | Remove LLM log attribute
-*LLMProxyApi* | [**l_lm_proxy_get_evaluation**](docs/LLMProxyApi.md#l_lm_proxy_get_evaluation) | **GET** /v1/{name_2} | 
-*LLMProxyApi* | [**l_lm_proxy_get_evaluation_run**](docs/LLMProxyApi.md#l_lm_proxy_get_evaluation_run) | **GET** /v1/{name_3} | 
-*LLMProxyApi* | [**l_lm_proxy_get_experiment**](docs/LLMProxyApi.md#l_lm_proxy_get_experiment) | **GET** /v1/{name} | 
-*LLMProxyApi* | [**l_lm_proxy_get_experiment_run**](docs/LLMProxyApi.md#l_lm_proxy_get_experiment_run) | **GET** /v1/{name_1} | 
 *LLMProxyApi* | [**l_lm_proxy_list_api_secrets**](docs/LLMProxyApi.md#l_lm_proxy_list_api_secrets) | **GET** /v1/api_secrets | List LLM inference API secrets
 *LLMProxyApi* | [**l_lm_proxy_list_app_logs**](docs/LLMProxyApi.md#l_lm_proxy_list_app_logs) | **GET** /v1/app_logs | List application logs
 *LLMProxyApi* | [**l_lm_proxy_list_datasets**](docs/LLMProxyApi.md#l_lm_proxy_list_datasets) | **GET** /v1/datasets | List LLM datasets
-*LLMProxyApi* | [**l_lm_proxy_list_evaluation_runs**](docs/LLMProxyApi.md#l_lm_proxy_list_evaluation_runs) | **GET** /v1/{evaluationName} | 
-*LLMProxyApi* | [**l_lm_proxy_list_evaluations**](docs/LLMProxyApi.md#l_lm_proxy_list_evaluations) | **GET** /v1/evaluations | 
-*LLMProxyApi* | [**l_lm_proxy_list_experiment_runs**](docs/LLMProxyApi.md#l_lm_proxy_list_experiment_runs) | **GET** /v1/{experimentName}/runs | 
-*LLMProxyApi* | [**l_lm_proxy_list_experiments**](docs/LLMProxyApi.md#l_lm_proxy_list_experiments) | **GET** /v1/experiments | 
 *LLMProxyApi* | [**l_lm_proxy_list_likes**](docs/LLMProxyApi.md#l_lm_proxy_list_likes) | **GET** /v1/likes | List LLM log feedback (\&quot;likes\&quot;)
 *LLMProxyApi* | [**l_lm_proxy_list_log_attributes**](docs/LLMProxyApi.md#l_lm_proxy_list_log_attributes) | **GET** /v1/attributes | List attributes on an LLM log
 *LLMProxyApi* | [**l_lm_proxy_list_open_ai_chat_logs**](docs/LLMProxyApi.md#l_lm_proxy_list_open_ai_chat_logs) | **GET** /v1/{parent}/logs | List LLM logs
 *LLMProxyApi* | [**l_lm_proxy_list_routing_configs**](docs/LLMProxyApi.md#l_lm_proxy_list_routing_configs) | **GET** /v1/routing_configs | List LLM routing configs
-*LLMProxyApi* | [**l_lm_proxy_ping**](docs/LLMProxyApi.md#l_lm_proxy_ping) | **POST** /v1/ping | 
 *LLMProxyApi* | [**l_lm_proxy_post_dataset_logs**](docs/LLMProxyApi.md#l_lm_proxy_post_dataset_logs) | **POST** /v1/datasets/{name}/logs | Add logs to a dataset
 *LLMProxyApi* | [**l_lm_proxy_update_spending_totals**](docs/LLMProxyApi.md#l_lm_proxy_update_spending_totals) | **PATCH** /v1/routing_configs/{routeConfigId} | Update routing config spending totals
 
@@ -117,8 +108,6 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [AppLogLevelType](docs/AppLogLevelType.md)
- - [EvaluationEvaluationType](docs/EvaluationEvaluationType.md)
- - [ExperimentEvalDefinition](docs/ExperimentEvalDefinition.md)
  - [LLMProxyCreateOpenAIChatInputLogRequest](docs/LLMProxyCreateOpenAIChatInputLogRequest.md)
  - [LLMProxyCreateOpenAIChatOutputLogRequest](docs/LLMProxyCreateOpenAIChatOutputLogRequest.md)
  - [LLMProxyPostDatasetLogsRequest](docs/LLMProxyPostDatasetLogsRequest.md)
@@ -145,10 +134,6 @@ Class | Method | HTTP request | Description
  - [V1Dataset](docs/V1Dataset.md)
  - [V1DatasetFilters](docs/V1DatasetFilters.md)
  - [V1DeleteLogAttributeResponse](docs/V1DeleteLogAttributeResponse.md)
- - [V1Evaluation](docs/V1Evaluation.md)
- - [V1EvaluationRun](docs/V1EvaluationRun.md)
- - [V1Experiment](docs/V1Experiment.md)
- - [V1ExperimentRun](docs/V1ExperimentRun.md)
  - [V1FallbackStrategy](docs/V1FallbackStrategy.md)
  - [V1Like](docs/V1Like.md)
  - [V1LikeFilter](docs/V1LikeFilter.md)
@@ -156,10 +141,6 @@ Class | Method | HTTP request | Description
  - [V1ListApiSecretsResponse](docs/V1ListApiSecretsResponse.md)
  - [V1ListAppLogsResponse](docs/V1ListAppLogsResponse.md)
  - [V1ListDatasetsResponse](docs/V1ListDatasetsResponse.md)
- - [V1ListEvaluationRunsResponse](docs/V1ListEvaluationRunsResponse.md)
- - [V1ListEvaluationsResponse](docs/V1ListEvaluationsResponse.md)
- - [V1ListExperimentRunsResponse](docs/V1ListExperimentRunsResponse.md)
- - [V1ListExperimentsResponse](docs/V1ListExperimentsResponse.md)
  - [V1ListLikesResponse](docs/V1ListLikesResponse.md)
  - [V1ListLogAttributesResponse](docs/V1ListLogAttributesResponse.md)
  - [V1ListOpenAIChatLogsResponse](docs/V1ListOpenAIChatLogsResponse.md)
@@ -173,8 +154,6 @@ Class | Method | HTTP request | Description
  - [V1OpenAIChatLogsFilters](docs/V1OpenAIChatLogsFilters.md)
  - [V1OpenAIChatOutputLog](docs/V1OpenAIChatOutputLog.md)
  - [V1OriginType](docs/V1OriginType.md)
- - [V1PingRequest](docs/V1PingRequest.md)
- - [V1PongResponse](docs/V1PongResponse.md)
  - [V1PostDatasetLogsResponse](docs/V1PostDatasetLogsResponse.md)
  - [V1RelativeDateTimeFilters](docs/V1RelativeDateTimeFilters.md)
  - [V1ResetInterval](docs/V1ResetInterval.md)

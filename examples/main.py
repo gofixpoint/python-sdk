@@ -146,11 +146,11 @@ def main() -> None:
     )    
 
     try:
-        api_response = client.fixpoint.proxy_client.l_lm_proxy_create_routing_config(routingConfig)
-        print("The response of LLMProxyApi->l_lm_proxy_create_routing_config:\n")
+        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(routingConfig)
+        print("The response of LLMProxyApi->llm_proxy_create_routing_config:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling LLMProxyApi->l_lm_proxy_create_api_secret: %s\n" % e)
+        print("Exception when calling LLMProxyApi->llm_proxy_create_api_secret: %s\n" % e)
     
 
 if __name__ == "__main__":

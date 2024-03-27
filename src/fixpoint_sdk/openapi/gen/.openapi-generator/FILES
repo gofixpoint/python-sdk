@@ -5,8 +5,6 @@
 .travis.yml
 README.md
 docs/AppLogLevelType.md
-docs/EvaluationEvaluationType.md
-docs/ExperimentEvalDefinition.md
 docs/LLMProxyApi.md
 docs/LLMProxyCreateOpenAIChatInputLogRequest.md
 docs/LLMProxyCreateOpenAIChatOutputLogRequest.md
@@ -34,10 +32,6 @@ docs/V1CreateRoutingConfigRequest.md
 docs/V1Dataset.md
 docs/V1DatasetFilters.md
 docs/V1DeleteLogAttributeResponse.md
-docs/V1Evaluation.md
-docs/V1EvaluationRun.md
-docs/V1Experiment.md
-docs/V1ExperimentRun.md
 docs/V1FallbackStrategy.md
 docs/V1Like.md
 docs/V1LikeFilter.md
@@ -45,10 +39,6 @@ docs/V1LikeIngest.md
 docs/V1ListApiSecretsResponse.md
 docs/V1ListAppLogsResponse.md
 docs/V1ListDatasetsResponse.md
-docs/V1ListEvaluationRunsResponse.md
-docs/V1ListEvaluationsResponse.md
-docs/V1ListExperimentRunsResponse.md
-docs/V1ListExperimentsResponse.md
 docs/V1ListLikesResponse.md
 docs/V1ListLogAttributesResponse.md
 docs/V1ListOpenAIChatLogsResponse.md
@@ -62,8 +52,6 @@ docs/V1OpenAIChatLog.md
 docs/V1OpenAIChatLogsFilters.md
 docs/V1OpenAIChatOutputLog.md
 docs/V1OriginType.md
-docs/V1PingRequest.md
-docs/V1PongResponse.md
 docs/V1PostDatasetLogsResponse.md
 docs/V1RelativeDateTimeFilters.md
 docs/V1ResetInterval.md
@@ -82,8 +70,6 @@ openapi_client/configuration.py
 openapi_client/exceptions.py
 openapi_client/models/__init__.py
 openapi_client/models/app_log_level_type.py
-openapi_client/models/evaluation_evaluation_type.py
-openapi_client/models/experiment_eval_definition.py
 openapi_client/models/llm_proxy_create_open_ai_chat_input_log_request.py
 openapi_client/models/llm_proxy_create_open_ai_chat_output_log_request.py
 openapi_client/models/llm_proxy_post_dataset_logs_request.py
@@ -110,10 +96,6 @@ openapi_client/models/v1_create_routing_config_request.py
 openapi_client/models/v1_dataset.py
 openapi_client/models/v1_dataset_filters.py
 openapi_client/models/v1_delete_log_attribute_response.py
-openapi_client/models/v1_evaluation.py
-openapi_client/models/v1_evaluation_run.py
-openapi_client/models/v1_experiment.py
-openapi_client/models/v1_experiment_run.py
 openapi_client/models/v1_fallback_strategy.py
 openapi_client/models/v1_like.py
 openapi_client/models/v1_like_filter.py
@@ -121,10 +103,6 @@ openapi_client/models/v1_like_ingest.py
 openapi_client/models/v1_list_api_secrets_response.py
 openapi_client/models/v1_list_app_logs_response.py
 openapi_client/models/v1_list_datasets_response.py
-openapi_client/models/v1_list_evaluation_runs_response.py
-openapi_client/models/v1_list_evaluations_response.py
-openapi_client/models/v1_list_experiment_runs_response.py
-openapi_client/models/v1_list_experiments_response.py
 openapi_client/models/v1_list_likes_response.py
 openapi_client/models/v1_list_log_attributes_response.py
 openapi_client/models/v1_list_open_ai_chat_logs_response.py
@@ -138,8 +116,6 @@ openapi_client/models/v1_open_ai_chat_log.py
 openapi_client/models/v1_open_ai_chat_logs_filters.py
 openapi_client/models/v1_open_ai_chat_output_log.py
 openapi_client/models/v1_origin_type.py
-openapi_client/models/v1_ping_request.py
-openapi_client/models/v1_pong_response.py
 openapi_client/models/v1_post_dataset_logs_response.py
 openapi_client/models/v1_relative_date_time_filters.py
 openapi_client/models/v1_reset_interval.py
@@ -157,8 +133,6 @@ setup.py
 test-requirements.txt
 test/__init__.py
 test/test_app_log_level_type.py
-test/test_evaluation_evaluation_type.py
-test/test_experiment_eval_definition.py
 test/test_llm_proxy_api.py
 test/test_llm_proxy_create_open_ai_chat_input_log_request.py
 test/test_llm_proxy_create_open_ai_chat_output_log_request.py
@@ -186,10 +160,6 @@ test/test_v1_create_routing_config_request.py
 test/test_v1_dataset.py
 test/test_v1_dataset_filters.py
 test/test_v1_delete_log_attribute_response.py
-test/test_v1_evaluation.py
-test/test_v1_evaluation_run.py
-test/test_v1_experiment.py
-test/test_v1_experiment_run.py
 test/test_v1_fallback_strategy.py
 test/test_v1_like.py
 test/test_v1_like_filter.py
@@ -197,10 +167,6 @@ test/test_v1_like_ingest.py
 test/test_v1_list_api_secrets_response.py
 test/test_v1_list_app_logs_response.py
 test/test_v1_list_datasets_response.py
-test/test_v1_list_evaluation_runs_response.py
-test/test_v1_list_evaluations_response.py
-test/test_v1_list_experiment_runs_response.py
-test/test_v1_list_experiments_response.py
 test/test_v1_list_likes_response.py
 test/test_v1_list_log_attributes_response.py
 test/test_v1_list_open_ai_chat_logs_response.py
@@ -214,8 +180,6 @@ test/test_v1_open_ai_chat_log.py
 test/test_v1_open_ai_chat_logs_filters.py
 test/test_v1_open_ai_chat_output_log.py
 test/test_v1_origin_type.py
-test/test_v1_ping_request.py
-test/test_v1_pong_response.py
 test/test_v1_post_dataset_logs_response.py
 test/test_v1_relative_date_time_filters.py
 test/test_v1_reset_interval.py
