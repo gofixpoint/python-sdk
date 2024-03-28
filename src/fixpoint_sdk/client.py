@@ -3,7 +3,7 @@
 import typing
 
 from openai import OpenAI
-import openapi_client
+import fixpoint_sdk.openapi.gen.openapi_client as openapi_client
 
 from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
