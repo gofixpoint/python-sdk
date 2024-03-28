@@ -12,6 +12,7 @@ from .completions import Chat
 import openapi_client
 from openapi_client.rest import ApiException
 
+
 class FixpointClient:
     """The FixpointClient lets you interact with the Fixpoint API."""
 
@@ -40,7 +41,7 @@ class FixpointClient:
             self.attributes = self._Attributes(requester)
 
             configuration = openapi_client.Configuration(
-                host = get_api_base_url(requester.base_url),
+                host=get_api_base_url(requester.base_url),
             )
 
             api_client = openapi_client.ApiClient(

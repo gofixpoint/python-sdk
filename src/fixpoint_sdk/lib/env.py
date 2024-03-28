@@ -9,6 +9,7 @@ BASE_URL = "https://api.fixpoint.co"
 
 _FIXPOINT_BASE_URL_ENV_KEY = "FIXPOINT_API_BASE_URL"
 
+
 def get_fixpoint_api_key(api_key: typing.Optional[str]) -> str:
     """Returns the Fixpoint API key from the environment or the argument.
 
@@ -47,4 +48,3 @@ def _get_api_base_url(base_url: typing.Optional[str]) -> str:
             raise InitException("Fixpoint API base URL is empty")
         return base_url
     return BASE_URL
-

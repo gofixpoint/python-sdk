@@ -6,6 +6,7 @@ from fixpoint_sdk import FixpointClient, ThumbsReaction
 import openapi_client
 from openapi_client.rest import ApiException
 
+
 def main() -> None:
     """An example of using FixpointClient to make LLM calls and record feedback."""
 
@@ -90,7 +91,7 @@ def main() -> None:
             }
         }
     )
-    
+
     # Define routing configuration
     routeDict = {
         "fallback_strategy": 1,
@@ -103,8 +104,8 @@ def main() -> None:
                 "spend_cap": {
                     "amount": "0.0001",
                     "currency": "USD",
-                    "reset_interval": 1
-                }
+                    "reset_interval": 1,
+                },
             },
             {
                 "provider": "openai",
@@ -112,11 +113,11 @@ def main() -> None:
                 "spend_cap": {
                     "amount": "0.0001",
                     "currency": "USD",
-                    "reset_interval": 1
-                }
-            }
-        ]
-      }
+                    "reset_interval": 1,
+                },
+            },
+        ],
+    }
 
     routingConfig = openapi_client.V1CreateRoutingConfigRequest(
         id="123",
@@ -129,8 +130,8 @@ def main() -> None:
                 spend_cap=openapi_client.V1SpendCap(
                     amount="0.0001",
                     currency="USD",
-                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY
-                )
+                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
+                ),
             ),
             openapi_client.V1Model(
                 provider="openai",
@@ -138,20 +139,24 @@ def main() -> None:
                 spend_cap=openapi_client.V1SpendCap(
                     amount="0.0001",
                     currency="USD",
-                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY
-                )
-            )
+                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
+                ),
+            ),
         ],
-        description="This is a test routing config."
-    )    
+        description="This is a test routing config.",
+    )
 
     try:
-        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(routingConfig)
+        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
+            routingConfig
+        )
         print("The response of LLMProxyApi->llm_proxy_create_routing_config:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling LLMProxyApi->llm_proxy_create_api_secret: %s\n" % e)
-    
+        print(
+            "Exception when calling LLMProxyApi->llm_proxy_create_api_secret: %s\n" % e
+        )
+
 
 if __name__ == "__main__":
     main()
