@@ -13,6 +13,7 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from .lib.requests import Requester
 from .lib.debugging import dprint
 from .lib.iterwrapper import IterWrapper
+from .lib.logging import logger
 from . import types
 
 
@@ -30,12 +31,13 @@ class FixpointChatCompletionStream:
 
     _stream: Stream[ChatCompletionChunk]
     input_log: types.InputLog
-    output_log: typing.Optional[types.OutputLog]
+    _output_log: typing.Optional[types.OutputLog]
     _outputs: typing.List[ChatCompletionChunk]
     _mode_type: types.ModeType
     _requester: Requester
     _trace_id: typing.Optional[str]
     _model_name: str
+    _all_streamed: bool = False
 
     def __init__(
         self,
@@ -48,7 +50,7 @@ class FixpointChatCompletionStream:
         model_name: str,
     ):
         self.input_log = input_log
-        self.output_log = None
+        self._output_log = None
         self._mode_type = mode_type
         self._requester = requester
         self._trace_id = trace_id
@@ -56,8 +58,10 @@ class FixpointChatCompletionStream:
 
         self._stream = stream
         self._outputs = []
+        self._all_streamed = False
 
         def on_finish() -> None:
+            self._all_streamed = True
             # Send HTTP request after calling create
             try:
                 output_resp = self._requester.create_openai_output_log(
@@ -68,7 +72,7 @@ class FixpointChatCompletionStream:
                     mode=self._mode_type,
                 )
                 dprint(f"Created an output log: {output_resp['name']}")
-                self.output_log = output_resp
+                self._output_log = output_resp
             # pylint: disable=broad-exception-caught
             except Exception:
                 # TODO(dbmikus) log the error here, but don't pollute client logs
@@ -94,6 +98,20 @@ class FixpointChatCompletionStream:
         """Yield the chat completion chunks."""
         for chunk in self:
             yield chunk
+
+    @property
+    def output_log(self) -> typing.Optional[types.OutputLog]:
+        """Returns the output log if we have streamed all output chunks."""
+        if not self._all_streamed:
+            logger.warning(
+                "\n".join(
+                    [
+                        "FixpointChatCompletionStream.output_log error: stream all output chunks before accessing output_log.",  # pylint: disable=line-too-long
+                        "\tStream by either iterating over the FixpointChatCompletionStream object, or its FixpointChatCompletionStream.completions property.",  # pylint: disable=line-too-long
+                    ]
+                )
+            )
+        return self._output_log
 
 
 FinishReason = typing.Literal[
