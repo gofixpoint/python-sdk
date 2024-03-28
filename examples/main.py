@@ -2,9 +2,9 @@
 
 # pylint: disable=unused-variable
 from pprint import pprint
-from fixpoint_sdk import FixpointClient, ThumbsReaction
 import openapi_client
 from openapi_client.rest import ApiException
+from fixpoint_sdk import FixpointClient, ThumbsReaction
 
 
 def main() -> None:
@@ -93,33 +93,7 @@ def main() -> None:
     )
 
     # Define routing configuration
-    routeDict = {
-        "fallback_strategy": 1,
-        "description": "foo",
-        "terminal_state": 1,
-        "models": [
-            {
-                "provider": "openai",
-                "name": "gpt-3.5-turbo-0125",
-                "spend_cap": {
-                    "amount": "0.0001",
-                    "currency": "USD",
-                    "reset_interval": 1,
-                },
-            },
-            {
-                "provider": "openai",
-                "name": "gpt-3.5-turbo-0301",
-                "spend_cap": {
-                    "amount": "0.0001",
-                    "currency": "USD",
-                    "reset_interval": 1,
-                },
-            },
-        ],
-    }
-
-    routingConfig = openapi_client.V1CreateRoutingConfigRequest(
+    routing_config = openapi_client.V1CreateRoutingConfigRequest(
         id="123",
         fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
         terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_ERROR,
@@ -148,14 +122,12 @@ def main() -> None:
 
     try:
         api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
-            routingConfig
+            routing_config
         )
         print("The response of LLMProxyApi->llm_proxy_create_routing_config:\n")
         pprint(api_response)
     except ApiException as e:
-        print(
-            "Exception when calling LLMProxyApi->llm_proxy_create_api_secret: %s\n" % e
-        )
+        print(f"Exception when calling LLMProxyApi->llm_proxy_create_api_secret: {e}\n")
 
 
 if __name__ == "__main__":

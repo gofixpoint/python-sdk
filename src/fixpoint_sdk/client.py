@@ -3,14 +3,12 @@
 import typing
 
 from openai import OpenAI
+import openapi_client
 
 from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
 from . import types
 from .completions import Chat
-
-import openapi_client
-from openapi_client.rest import ApiException
 
 
 class FixpointClient:
@@ -47,7 +45,7 @@ class FixpointClient:
             api_client = openapi_client.ApiClient(
                 configuration,
                 header_name="Authorization",
-                header_value="Bearer {0}".format(requester.api_key),
+                header_value=f"Bearer {0}".format(requester.api_key),
             )
             self.proxy_client = openapi_client.LLMProxyApi(api_client)
 
