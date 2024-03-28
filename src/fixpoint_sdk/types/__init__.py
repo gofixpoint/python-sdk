@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, asdict
 import enum
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
 from openai.types.chat import ChatCompletionMessageParam
 
 
@@ -38,6 +38,18 @@ class ModeType(enum.Enum):
     MODE_TEST = 1
     MODE_STAGING = 2
     MODE_PROD = 3
+
+
+ModeArg = Union[
+    Literal["unspecified"],
+    Literal["test"],
+    Literal["staging"],
+    Literal["prod"],
+    Literal[0],
+    Literal[1],
+    Literal[2],
+    Literal[3],
+]
 
 
 def parse_mode_type(mode: Optional[Union[str, int, object]] = None) -> ModeType:
