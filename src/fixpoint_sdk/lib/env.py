@@ -4,6 +4,7 @@ import os
 import typing
 
 from .exc import InitException
+from .logging import logger
 
 
 def get_fixpoint_api_key(api_key: typing.Optional[str]) -> str:
@@ -16,12 +17,12 @@ def get_fixpoint_api_key(api_key: typing.Optional[str]) -> str:
         return api_key
 
     if "FIXPOINT_API_KEY" not in os.environ:
-        print("FIXPOINT_API_KEY env variable not set.")
+        logger.error("FIXPOINT_API_KEY env variable not set.")
         raise InitException("Fixpoint API key not set")
 
     key = os.environ["FIXPOINT_API_KEY"]
     if not key:
-        print("FIXPOINT_API_KEY env variable is empty.")
+        logger.error("FIXPOINT_API_KEY env variable is empty.")
         raise InitException("Fixpoint API key is empty")
     return key
 
@@ -44,7 +45,7 @@ def _get_api_base_url(base_url: typing.Optional[str]) -> str:
     if _FIXPOINT_BASE_URL_ENV_KEY in os.environ:
         base_url = os.environ[_FIXPOINT_BASE_URL_ENV_KEY]
         if not base_url:
-            print(f"{_FIXPOINT_BASE_URL_ENV_KEY} env variable is empty.")
+            logger.error("%s env variable is empty.", _FIXPOINT_BASE_URL_ENV_KEY)
             raise InitException("Fixpoint API base URL is empty")
         return base_url
     return BASE_URL

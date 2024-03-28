@@ -5,6 +5,7 @@ from .completions import FixpointChatCompletion, FixpointChatCompletionStream
 from . import types
 from .types import ThumbsReaction, ModeType
 from . import compat
+from .lib.logging import logger, LOGGER_NAME
 
 __all__ = [
     "FixpointClient",
@@ -14,4 +15,6 @@ __all__ = [
     "compat",
     "FixpointChatCompletion",
     "FixpointChatCompletionStream",
+    "logger",
+    "LOGGER_NAME",
 ]
