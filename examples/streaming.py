@@ -29,9 +29,15 @@ def main() -> None:
     output_log = resp.output_log
     assert output_log is None
     text_contents = []
+
+    # You can iterate via `resp.completions`, like below, or via `resp` directly like:
+    #
+    #     for chunk in resp:
+    #         ...
+    #
     # Pylint is getting this wrong
     # pylint: disable=not-an-iterable
-    for chunk in resp:
+    for chunk in resp.completions:
         content = chunk.choices[0].delta.content
         if content:
             text_contents.append(content)

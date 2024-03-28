@@ -7,6 +7,8 @@ import typing
 from typing import Callable, TypeVar
 from typing_extensions import ParamSpec
 
+from .logging import logger
+
 
 def _is_debug_mode() -> bool:
     debugmode = os.environ.get("DEBUG", "off").lower()
@@ -17,7 +19,7 @@ def dprint(*args: typing.Any, **kwargs: typing.Any) -> None:
     """Prints only if debug mode is on."""
     if not _is_debug_mode():
         return
-    print(*args, **kwargs)
+    logger.debug(*args, **kwargs)
 
 
 P = ParamSpec("P")
@@ -53,7 +55,7 @@ class FnIO:
 
     def log(self) -> None:
         """Prints a text representation of the FnIO object."""
-        print(self.to_dict())
+        logger.info(self.to_dict())
 
 
 def debug_log_function_io(func: Callable[P, T]) -> Callable[P, T]:
