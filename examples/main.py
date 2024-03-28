@@ -2,7 +2,7 @@
 
 # pylint: disable=unused-variable
 from pprint import pprint
-import fixpoint_sdk.openapi.gen.openapi_client as openapi_client
+from fixpoint_sdk.openapi.gen import openapi_client
 from fixpoint_sdk.openapi.gen.openapi_client.rest import ApiException
 from fixpoint_sdk import FixpointClient, ThumbsReaction
 
