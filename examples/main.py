@@ -120,6 +120,19 @@ def main() -> None:
         description="This is a test routing config.",
     )
 
+    clientWithRouter = FixpointClient()
+
+    routedResp = clientWithRouter.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What are you?"},
+        ],
+        user="some-user-id",
+    )
+
+    pprint(routedResp)
+
     try:
         api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
             routing_config

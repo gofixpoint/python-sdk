@@ -23,6 +23,7 @@ class FixpointClient:
         fixpoint_api_key: typing.Optional[str] = None,
         openai_api_key: typing.Optional[str] = None,
         api_base_url: typing.Optional[str] = None,
+        use_router: bool = False,
         **kwargs: typing.Any,
     ):
         # Check that the environment variable FIXPOINT_API_KEY is set
@@ -33,7 +34,7 @@ class FixpointClient:
         if openai_api_key:
             kwargs = dict(kwargs, api_key=openai_api_key)
         self.client = OpenAI(*args, **kwargs)
-        self.chat = Chat(self._requester, self.client)
+        self.chat = Chat(self._requester, self.client, use_router=use_router)
         self.fixpoint = self._Fixpoint(self._requester)
 
     class _Fixpoint:

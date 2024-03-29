@@ -263,9 +263,38 @@ class Completions:
             model_name=req_copy["model_name"],
         )
 
+class RoutedCompletions:
+    def __init__(self, requester, client):
+        self._requester = requester
+        self._client = client
+
+    def create(
+        self,
+        *args: typing.Any,
+        mode: Optional[types.ModeArg] = "unspecified",
+        **kwargs: typing.Any,
+    ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]:
+        # Prepare the request
+        req_copy = kwargs.copy()
+
+        # Create a routed log
+        routed_log_resp = self._requester.create_openai_routed_log(
+            req_copy["model_name"],
+            req_copy,
+            trace_id=kwargs.get('trace_id'),
+            mode=kwargs.get('mode_type'),
+        )
+        dprint(f"Created a routed log: {routed_log_resp['name']}")
+
+        return FixpointChatCompletion(
+            routed_log=routed_log_resp,
+        )
 
 class Chat:
     """The Chat class lets you interact with the underlying chat APIs."""
 
-    def __init__(self, requester: Requester, client: OpenAI):
-        self.completions = Completions(requester, client)
+    def __init__(self, requester: Requester, client: OpenAI, use_router: bool = False):
+        if (use_router):
+            self.completions = RoutedCompletions(requester, client)
+        else:
+            self.completions = Completions(requester, client)
