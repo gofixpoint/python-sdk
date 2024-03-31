@@ -1,9 +1,7 @@
+# pylint: disable=unused-variable
+
 """An example using the basics of the Fixpoint SDK."""
 
-# pylint: disable=unused-variable
-from fixpoint_sdk.client import ChatRouterClient
-from fixpoint_sdk.openapi.gen import openapi_client
-from fixpoint_sdk.openapi.gen.openapi_client.rest import ApiException
 from fixpoint_sdk import FixpointClient, ThumbsReaction
 
 
@@ -20,11 +18,11 @@ def main() -> None:
     # associate with the request. The user will be automatically passed through
     # to OpenAI's API.
     resp1 = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "What are you?"},
         ],
+        model="gpt-3.5-turbo-0125",
         user="some-user-id",
     )
     openai_response = resp1.completion
@@ -35,11 +33,11 @@ def main() -> None:
     # (e.g. a multi-step chain of prompts), you can pass in a trace_id to
     # associate them together.
     resp2 = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "What are you?"},
         ],
+        model="gpt-3.5-turbo-0125",
         trace_id="some-trace-id",
     )
 
@@ -50,8 +48,6 @@ def main() -> None:
     # If you do not specify a mode, we default to "prod".
     for env_mode in ["test", "staging", "prod"]:
         client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
-            mode=env_mode,
             messages=[
                 {
                     "role": "system",
@@ -59,6 +55,8 @@ def main() -> None:
                 },
                 {"role": "user", "content": "What are you?"},
             ],
+            model="gpt-3.5-turbo-0125",
+            mode=env_mode,
         )
 
     # Record user feedback. One user giving a thumbs up to a log, the other giving a thumbs down.
@@ -91,58 +89,6 @@ def main() -> None:
             }
         }
     )
-
-    # Define routing configuration
-    routing_config = openapi_client.V1CreateRoutingConfigRequest(
-        id="123",
-        fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
-        terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_ERROR,
-        models=[
-            openapi_client.V1Model(
-                provider="openai",
-                name="gpt-3.5-turbo-0125",
-                spend_cap=openapi_client.V1SpendCap(
-                    amount="0.0001",
-                    currency="USD",
-                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
-                ),
-            ),
-            openapi_client.V1Model(
-                provider="openai",
-                name="gpt-3.5-turbo-0301",
-                spend_cap=openapi_client.V1SpendCap(
-                    amount="0.0001",
-                    currency="USD",
-                    reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
-                ),
-            ),
-        ],
-        description="This is a test routing config.",
-    )
-
-    try:
-        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
-            routing_config
-        )
-    except ApiException as e:
-        print(
-            f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
-        )
-
-    client_with_router = ChatRouterClient()
-
-    try:
-        api_response = client_with_router.chat.completions.create(
-            mode="test",
-            user="some-user-id",
-            trace_id="some-trace-id",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "What are you?"},
-            ],
-        )
-    except ApiException as e:
-        print(f"Exception when calling ChatCompletionsApi->create: {e}\n")
 
 
 if __name__ == "__main__":

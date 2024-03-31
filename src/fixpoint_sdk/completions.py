@@ -1,7 +1,7 @@
 """Code for chat completions."""
 
 import typing
-from typing import Optional, Literal, Generator
+from typing import Optional, Literal, List, Generator
 from dataclasses import dataclass
 
 from openai import OpenAI
@@ -9,12 +9,34 @@ from openai._streaming import Stream
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
 from openai.types.chat.chat_completion import Choice
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
+from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 
 from .lib.requests import Requester
 from .lib.debugging import dprint
 from .lib.iterwrapper import IterWrapper
 from .lib.logging import logger
 from . import types
+
+
+Model = typing.Union[
+    str,
+    Literal[
+        "gpt-4-1106-preview",
+        "gpt-4-vision-preview",
+        "gpt-4",
+        "gpt-4-0314",
+        "gpt-4-0613",
+        "gpt-4-32k",
+        "gpt-4-32k-0314",
+        "gpt-4-32k-0613",
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-16k",
+        "gpt-3.5-turbo-0301",
+        "gpt-3.5-turbo-0613",
+        "gpt-3.5-turbo-1106",
+        "gpt-3.5-turbo-16k-0613",
+    ],
+]
 
 
 @dataclass
@@ -101,10 +123,17 @@ class FixpointChatCompletionStream:
         return self
 
     @property
-    def completions(self) -> Generator[ChatCompletionChunk, None, None]:
+    def completion(self) -> Generator[ChatCompletionChunk, None, None]:
         """Yield the chat completion chunks."""
         for chunk in self:
             yield chunk
+
+    # This function is deprecated, because `completion` exists on all inference
+    # response types while `completions` only exists on streaming response.
+    @property
+    def completions(self) -> Generator[ChatCompletionChunk, None, None]:
+        """Yield the chat completion chunks."""
+        return self.completion
 
     @property
     def output_log(self) -> typing.Optional[types.OutputLog]:
@@ -192,24 +221,49 @@ class Completions:
     @typing.overload
     def create(
         self,
-        *args: typing.Any,
-        mode: Optional[types.ModeArg] = None,
-        stream: Optional[Literal[False]] = None,
+        *,
+        messages: List[ChatCompletionMessageParam],
+        model: Model,
+        stream: Optional[Literal[False]],
         **kwargs: typing.Any,
     ) -> FixpointChatCompletion: ...
 
     @typing.overload
     def create(
         self,
-        *args: typing.Any,
-        mode: Optional[types.ModeArg] = None,
+        *,
+        messages: List[ChatCompletionMessageParam],
+        model: Model,
         stream: Literal[True],
         **kwargs: typing.Any,
     ) -> FixpointChatCompletionStream: ...
 
+    @typing.overload
     def create(
         self,
-        *args: typing.Any,
+        *,
+        messages: List[ChatCompletionMessageParam],
+        model: Model,
+        stream: bool,
+        **kwargs: typing.Any,
+    ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]: ...
+
+    @typing.overload
+    def create(
+        self,
+        *,
+        messages: List[ChatCompletionMessageParam],
+        model: Model,
+        stream: typing.Union[Optional[Literal[False]], Literal[True]] = None,
+        **kwargs: typing.Any,
+    ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]: ...
+
+    def create(
+        self,
+        *,
+        messages: List[ChatCompletionMessageParam],
+        model: Model,
+        stream: typing.Union[Optional[Literal[False]], Literal[True]] = None,
         mode: Optional[types.ModeArg] = "unspecified",
         **kwargs: typing.Any,
     ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]:
@@ -223,9 +277,8 @@ class Completions:
 
         # Deep copy the kwargs to avoid modifying the original
         req_copy = kwargs.copy()
-        if "model" not in req_copy:
-            raise ValueError("model needs to be passed in as a kwarg")
-        req_copy["model_name"] = req_copy.pop("model")
+        req_copy["model_name"] = model
+        req_copy["messages"] = messages
 
         # Send HTTP request before calling create
         input_resp = self._requester.create_openai_input_log(
@@ -237,37 +290,37 @@ class Completions:
         )
         dprint(f'Created an input log: {input_resp["name"]}')
 
-        stream = kwargs.get("stream", False)
-        # Make create call to OPEN AI
-        openai_response = self.client.chat.completions.create(*args, **kwargs)
         if stream:
+            openai_response = self.client.chat.completions.create(
+                messages=messages, model=model, stream=stream, **kwargs
+            )
             dprint("Received an openai response stream")
-        else:
-            dprint(f"Received an openai response: {openai_response.id}")
-
-        if not stream:
-            # Send HTTP request after calling create
-            output_resp = self._requester.create_openai_output_log(
-                req_copy["model_name"],
-                input_resp,
-                openai_response,
-                trace_id=trace_id,
-                mode=mode_type,
-            )
-            dprint(f"Created an output log: {output_resp['name']}")
-            return FixpointChatCompletion(
-                completion=openai_response,
+            return FixpointChatCompletionStream(
+                stream=openai_response,
                 input_log=input_resp,
-                output_log=output_resp,
+                mode_type=mode_type,
+                requester=self._requester,
+                trace_id=trace_id,
+                model_name=req_copy["model_name"],
             )
 
-        return FixpointChatCompletionStream(
-            stream=openai_response,
-            input_log=input_resp,
-            mode_type=mode_type,
-            requester=self._requester,
+        openai_response = self.client.chat.completions.create(
+            messages=messages, model=model, stream=stream, **kwargs
+        )
+        dprint(f"Received an openai response: {openai_response.id}")
+        # Send HTTP request after calling create
+        output_resp = self._requester.create_openai_output_log(
+            req_copy["model_name"],
+            input_resp,
+            openai_response,
             trace_id=trace_id,
-            model_name=req_copy["model_name"],
+            mode=mode_type,
+        )
+        dprint(f"Created an output log: {output_resp['name']}")
+        return FixpointChatCompletion(
+            completion=openai_response,
+            input_log=input_resp,
+            output_log=output_resp,
         )
 
 
@@ -282,7 +335,7 @@ class RoutedCompletions:
         self,
         mode: Optional[types.ModeArg] = "unspecified",
         **kwargs: typing.Any,
-    ) -> typing.Union[FixpointChatRoutedCompletion]:
+    ) -> FixpointChatRoutedCompletion:
         """Create an OpenAI completion and log the LLM input and output."""
         # Prepare the request
         req_copy = kwargs.copy()

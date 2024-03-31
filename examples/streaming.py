@@ -37,7 +37,7 @@ def main() -> None:
     #
     # Pylint is getting this wrong
     # pylint: disable=not-an-iterable
-    for chunk in resp.completions:
+    for chunk in resp.completion:
         content = chunk.choices[0].delta.content
         if content:
             text_contents.append(content)
