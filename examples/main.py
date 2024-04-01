@@ -120,27 +120,24 @@ def main() -> None:
         description="This is a test routing config.",
     )
 
-    clientWithRouter = FixpointClient()
+    try:
+        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(routing_config)
+    except ApiException as e:
+        print(f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n")
+    
 
-    routedResp = clientWithRouter.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "What are you?"},
-        ],
-        user="some-user-id",
-    )
-
-    pprint(routedResp)
+    clientWithRouter = FixpointClient(use_router=True)
 
     try:
-        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
-            routing_config
+        api_response = clientWithRouter.chat.completions.create(
+          
+          messages=[
+              {"role": "system", "content": "You are a helpful assistant."},
+              {"role": "user", "content": "What are you?"},
+          ],
         )
-        print("The response of LLMProxyApi->llm_proxy_create_routing_config:\n")
-        pprint(api_response)
     except ApiException as e:
-        print(f"Exception when calling LLMProxyApi->llm_proxy_create_api_secret: {e}\n")
+        print(f"Exception when calling ChatCompletionsApi->create: {e}\n")
 
 
 if __name__ == "__main__":

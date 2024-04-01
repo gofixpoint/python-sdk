@@ -16,6 +16,12 @@ from .lib.iterwrapper import IterWrapper
 from .lib.logging import logger
 from . import types
 
+@dataclass
+class FixpointChatRoutedCompletion:
+    """Wraps the OpenAI chat completion with logging data."""
+
+    completion: ChatCompletion
+
 
 @dataclass
 class FixpointChatCompletion:
@@ -264,7 +270,7 @@ class Completions:
         )
 
 class RoutedCompletions:
-    def __init__(self, requester, client):
+    def __init__(self, requester: Requester, client: OpenAI):
         self._requester = requester
         self._client = client
 
@@ -273,28 +279,28 @@ class RoutedCompletions:
         *args: typing.Any,
         mode: Optional[types.ModeArg] = "unspecified",
         **kwargs: typing.Any,
-    ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]:
+    ) -> typing.Union[FixpointChatRoutedCompletion]:
         # Prepare the request
         req_copy = kwargs.copy()
 
         # Create a routed log
         routed_log_resp = self._requester.create_openai_routed_log(
-            req_copy["model_name"],
             req_copy,
-            trace_id=kwargs.get('trace_id'),
-            mode=kwargs.get('mode_type'),
         )
-        dprint(f"Created a routed log: {routed_log_resp['name']}")
+        dprint(f"Created a routed log: {routed_log_resp['id']}")
 
-        return FixpointChatCompletion(
-            routed_log=routed_log_resp,
+        return FixpointChatRoutedCompletion(
+            completion=routed_log_resp,
         )
+    
+class ChatWithRouter:
+    """The Chat class lets you interact with the underlying chat APIs."""
+
+    def __init__(self, requester: Requester, client: OpenAI):
+        self.completions = RoutedCompletions(requester, client)
 
 class Chat:
     """The Chat class lets you interact with the underlying chat APIs."""
 
-    def __init__(self, requester: Requester, client: OpenAI, use_router: bool = False):
-        if (use_router):
-            self.completions = RoutedCompletions(requester, client)
-        else:
-            self.completions = Completions(requester, client)
+    def __init__(self, requester: Requester, client: OpenAI):
+        self.completions = Completions(requester, client)
