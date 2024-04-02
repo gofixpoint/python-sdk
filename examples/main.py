@@ -133,6 +133,9 @@ def main() -> None:
 
     try:
         api_response = client_with_router.chat.completions.create(
+            mode="test",
+            user="some-user-id",
+            trace_id="some-trace-id",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": "What are you?"},
