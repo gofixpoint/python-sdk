@@ -272,16 +272,18 @@ class Completions:
 
 
 class RoutedCompletions:
+    """Create chat completion inferences and log them."""
+
     def __init__(self, requester: Requester, client: OpenAI):
         self._requester = requester
         self._client = client
 
     def create(
         self,
-        *args: typing.Any,
         mode: Optional[types.ModeArg] = "unspecified",
         **kwargs: typing.Any,
     ) -> typing.Union[FixpointChatRoutedCompletion]:
+        """Create an OpenAI completion and log the LLM input and output."""
         # Prepare the request
         req_copy = kwargs.copy()
         trace_id = kwargs.pop("trace_id", None)

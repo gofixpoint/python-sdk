@@ -1,7 +1,6 @@
 """An example using the basics of the Fixpoint SDK."""
 
 # pylint: disable=unused-variable
-from pprint import pprint
 from fixpoint_sdk.client import ChatRouterClient
 from fixpoint_sdk.openapi.gen import openapi_client
 from fixpoint_sdk.openapi.gen.openapi_client.rest import ApiException
@@ -130,10 +129,10 @@ def main() -> None:
             f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
         )
 
-    clientWithRouter = ChatRouterClient()
+    client_with_router = ChatRouterClient()
 
     try:
-        api_response = clientWithRouter.chat.completions.create(
+        api_response = client_with_router.chat.completions.create(
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": "What are you?"},

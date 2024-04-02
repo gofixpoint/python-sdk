@@ -125,7 +125,7 @@ class OpenAILLMInputLog(TypedDict, total=False):
     trace_id: Optional[str]
 
 
-# TODO: this is an incomplete definition.
+# TODO(jakub) this is an incomplete definition.
 class ChatCompletion(TypedDict):
     """A chat completion."""
 

@@ -15,6 +15,8 @@ from .completions import Chat, ChatWithRouter
 
 
 class ChatRouterClient:
+    """The ChatRouterClient lets you interact with the Fixpoint API and the OpenAI API."""
+
     def __init__(
         self,
         *args: typing.Any,
