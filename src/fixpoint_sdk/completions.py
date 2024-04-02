@@ -16,11 +16,12 @@ from .lib.iterwrapper import IterWrapper
 from .lib.logging import logger
 from . import types
 
+
 @dataclass
 class FixpointChatRoutedCompletion:
     """Wraps the OpenAI chat completion with logging data."""
 
-    completion: ChatCompletion
+    completion: types.ChatCompletion
 
 
 @dataclass
@@ -269,6 +270,7 @@ class Completions:
             model_name=req_copy["model_name"],
         )
 
+
 class RoutedCompletions:
     def __init__(self, requester: Requester, client: OpenAI):
         self._requester = requester
@@ -282,22 +284,26 @@ class RoutedCompletions:
     ) -> typing.Union[FixpointChatRoutedCompletion]:
         # Prepare the request
         req_copy = kwargs.copy()
+        trace_id = kwargs.pop("trace_id", None)
 
-        # Create a routed log
         routed_log_resp = self._requester.create_openai_routed_log(
-            req_copy,
+            typing.cast(types.OpenAILLMInputLog, req_copy),
+            mode=types.parse_mode_type(mode),
+            trace_id=trace_id,
         )
         dprint(f"Created a routed log: {routed_log_resp['id']}")
 
         return FixpointChatRoutedCompletion(
             completion=routed_log_resp,
         )
-    
+
+
 class ChatWithRouter:
     """The Chat class lets you interact with the underlying chat APIs."""
 
     def __init__(self, requester: Requester, client: OpenAI):
         self.completions = RoutedCompletions(requester, client)
+
 
 class Chat:
     """The Chat class lets you interact with the underlying chat APIs."""

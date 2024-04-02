@@ -43,7 +43,7 @@ class Requester:
         request: types.OpenAILLMInputLog,
         trace_id: typing.Optional[str] = None,
         mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
-    ) -> types.InputLog:
+    ) -> types.ChatCompletion:
         """Create routed input log for an LLM inference request."""
         url = f"{self.base_url}/v1/router"
         input_log_req = types.CreateLLMRoutingRequest(
@@ -51,11 +51,12 @@ class Requester:
             user_id=request.get("user", None),
             temperature=request.get("temperature", None),
             trace_id=trace_id,
-            mode=mode
+            mode=mode,
         )
 
         return typing.cast(
-            types.InputLog, self._post_to_fixpoint(url, input_log_req.to_dict()).json()
+            types.ChatCompletion,
+            self._post_to_fixpoint(url, input_log_req.to_dict()).json(),
         )
 
     @debug_log_function_io

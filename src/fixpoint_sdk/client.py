@@ -14,17 +14,13 @@ from . import types
 from .completions import Chat, ChatWithRouter
 
 
-
-class FixpointClient:
-    """The FixpointClient lets you interact with the Fixpoint API."""
-
+class ChatRouterClient:
     def __init__(
         self,
         *args: typing.Any,
         fixpoint_api_key: typing.Optional[str] = None,
         openai_api_key: typing.Optional[str] = None,
         api_base_url: typing.Optional[str] = None,
-        use_router: bool = False,
         **kwargs: typing.Any,
     ):
         # Check that the environment variable FIXPOINT_API_KEY is set
@@ -35,10 +31,29 @@ class FixpointClient:
         if openai_api_key:
             kwargs = dict(kwargs, api_key=openai_api_key)
         self.client = OpenAI(*args, **kwargs)
-        if use_router:
-            self.chat = ChatWithRouter(self._requester, self.client)
-        else:
-            self.chat = Chat(self._requester, self.client)
+        self.chat = ChatWithRouter(self._requester, self.client)
+
+
+class FixpointClient:
+    """The FixpointClient lets you interact with the Fixpoint API."""
+
+    def __init__(
+        self,
+        *args: typing.Any,
+        fixpoint_api_key: typing.Optional[str] = None,
+        openai_api_key: typing.Optional[str] = None,
+        api_base_url: typing.Optional[str] = None,
+        **kwargs: typing.Any,
+    ):
+        # Check that the environment variable FIXPOINT_API_KEY is set
+        _api_key = get_fixpoint_api_key(fixpoint_api_key)
+
+        self._api_key = _api_key
+        self._requester = Requester(self._api_key, get_api_base_url(api_base_url))
+        if openai_api_key:
+            kwargs = dict(kwargs, api_key=openai_api_key)
+        self.client = OpenAI(*args, **kwargs)
+        self.chat = Chat(self._requester, self.client)
         self.fixpoint = self._Fixpoint(self._requester)
 
     class _Fixpoint:

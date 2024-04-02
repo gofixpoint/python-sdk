@@ -2,6 +2,7 @@
 
 # pylint: disable=unused-variable
 from pprint import pprint
+from fixpoint_sdk.client import ChatRouterClient
 from fixpoint_sdk.openapi.gen import openapi_client
 from fixpoint_sdk.openapi.gen.openapi_client.rest import ApiException
 from fixpoint_sdk import FixpointClient, ThumbsReaction
@@ -121,20 +122,22 @@ def main() -> None:
     )
 
     try:
-        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(routing_config)
+        api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
+            routing_config
+        )
     except ApiException as e:
-        print(f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n")
-    
+        print(
+            f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
+        )
 
-    clientWithRouter = FixpointClient(use_router=True)
+    clientWithRouter = ChatRouterClient()
 
     try:
         api_response = clientWithRouter.chat.completions.create(
-          
-          messages=[
-              {"role": "system", "content": "You are a helpful assistant."},
-              {"role": "user", "content": "What are you?"},
-          ],
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "What are you?"},
+            ],
         )
     except ApiException as e:
         print(f"Exception when calling ChatCompletionsApi->create: {e}\n")

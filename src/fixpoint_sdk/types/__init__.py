@@ -82,13 +82,13 @@ class CreateLLMRoutingRequest:
     trace_id: Optional[str] = None
     mode: Optional[ModeType] = ModeType.MODE_UNSPECIFIED
 
-
     def to_dict(self) -> Dict[str, Any]:
         """Convert this request to a dictionary."""
         d = asdict(self)
         if self.mode is not None:
             d["mode"] = self.mode.value
         return d
+
 
 @dataclass
 class CreateLLMInputLogRequest:
@@ -123,6 +123,17 @@ class OpenAILLMInputLog(TypedDict, total=False):
     user: Optional[str]
     temperature: Optional[float]
     trace_id: Optional[str]
+
+
+# TODO: this is an incomplete definition.
+class ChatCompletion(TypedDict):
+    """A chat completion."""
+
+    id: str
+    choices: List[Any]
+    created: int
+    model: str
+    object: Literal["chat.completion"]
 
 
 # TODO(dbmikus) this is an incomplete definition.
