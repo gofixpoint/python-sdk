@@ -38,6 +38,28 @@ class Requester:
         self._on_api_call = _on_api_call
 
     @debug_log_function_io
+    def create_openai_routed_log(
+        self,
+        request: types.OpenAILLMInputLog,
+        trace_id: typing.Optional[str] = None,
+        mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
+    ) -> types.ChatCompletion:
+        """Create routed input log for an LLM inference request."""
+        url = f"{self.base_url}/v1/router"
+        input_log_req = types.CreateLLMRoutingRequest(
+            messages=request["messages"],
+            user_id=request.get("user", None),
+            temperature=request.get("temperature", None),
+            trace_id=trace_id,
+            mode=mode,
+        )
+
+        return typing.cast(
+            types.ChatCompletion,
+            self._post_to_fixpoint(url, input_log_req.to_dict()).json(),
+        )
+
+    @debug_log_function_io
     def create_openai_input_log(
         self,
         model_name: str,

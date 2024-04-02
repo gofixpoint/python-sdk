@@ -18,6 +18,13 @@ from . import types
 
 
 @dataclass
+class FixpointChatRoutedCompletion:
+    """Wraps the OpenAI chat completion with logging data."""
+
+    completion: types.ChatCompletion
+
+
+@dataclass
 class FixpointChatCompletion:
     """Wraps the OpenAI chat completion with logging data."""
 
@@ -262,6 +269,42 @@ class Completions:
             trace_id=trace_id,
             model_name=req_copy["model_name"],
         )
+
+
+class RoutedCompletions:
+    """Create chat completion inferences and log them."""
+
+    def __init__(self, requester: Requester, client: OpenAI):
+        self._requester = requester
+        self._client = client
+
+    def create(
+        self,
+        mode: Optional[types.ModeArg] = "unspecified",
+        **kwargs: typing.Any,
+    ) -> typing.Union[FixpointChatRoutedCompletion]:
+        """Create an OpenAI completion and log the LLM input and output."""
+        # Prepare the request
+        req_copy = kwargs.copy()
+        trace_id = kwargs.pop("trace_id", None)
+
+        routed_log_resp = self._requester.create_openai_routed_log(
+            typing.cast(types.OpenAILLMInputLog, req_copy),
+            mode=types.parse_mode_type(mode),
+            trace_id=trace_id,
+        )
+        dprint(f"Created a routed log: {routed_log_resp['id']}")
+
+        return FixpointChatRoutedCompletion(
+            completion=routed_log_resp,
+        )
+
+
+class ChatWithRouter:
+    """The Chat class lets you interact with the underlying chat APIs."""
+
+    def __init__(self, requester: Requester, client: OpenAI):
+        self.completions = RoutedCompletions(requester, client)
 
 
 class Chat:

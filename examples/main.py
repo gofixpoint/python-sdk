@@ -1,7 +1,7 @@
 """An example using the basics of the Fixpoint SDK."""
 
 # pylint: disable=unused-variable
-from pprint import pprint
+from fixpoint_sdk.client import ChatRouterClient
 from fixpoint_sdk.openapi.gen import openapi_client
 from fixpoint_sdk.openapi.gen.openapi_client.rest import ApiException
 from fixpoint_sdk import FixpointClient, ThumbsReaction
@@ -124,10 +124,22 @@ def main() -> None:
         api_response = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
             routing_config
         )
-        print("The response of LLMProxyApi->llm_proxy_create_routing_config:\n")
-        pprint(api_response)
     except ApiException as e:
-        print(f"Exception when calling LLMProxyApi->llm_proxy_create_api_secret: {e}\n")
+        print(
+            f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
+        )
+
+    client_with_router = ChatRouterClient()
+
+    try:
+        api_response = client_with_router.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "What are you?"},
+            ],
+        )
+    except ApiException as e:
+        print(f"Exception when calling ChatCompletionsApi->create: {e}\n")
 
 
 if __name__ == "__main__":

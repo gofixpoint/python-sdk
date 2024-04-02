@@ -73,11 +73,29 @@ def parse_mode_type(mode: Optional[Union[str, int, object]] = None) -> ModeType:
 
 
 @dataclass
+class CreateLLMRoutingRequest:
+    """Request to create a routing for an LLM."""
+
+    messages: List[ChatCompletionMessageParam]
+    temperature: Optional[float] = None
+    user_id: Optional[str] = None
+    trace_id: Optional[str] = None
+    mode: Optional[ModeType] = ModeType.MODE_UNSPECIFIED
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert this request to a dictionary."""
+        d = asdict(self)
+        if self.mode is not None:
+            d["mode"] = self.mode.value
+        return d
+
+
+@dataclass
 class CreateLLMInputLogRequest:
     """Request to create a log of a chat completion input."""
 
-    model_name: str
     messages: List[ChatCompletionMessageParam]
+    model_name: str
     user_id: Optional[str] = None
     temperature: Optional[float] = None
     trace_id: Optional[str] = None
@@ -105,6 +123,17 @@ class OpenAILLMInputLog(TypedDict, total=False):
     user: Optional[str]
     temperature: Optional[float]
     trace_id: Optional[str]
+
+
+# TODO(jakub) this is an incomplete definition.
+class ChatCompletion(TypedDict):
+    """A chat completion."""
+
+    id: str
+    choices: List[Any]
+    created: int
+    model: str
+    object: Literal["chat.completion"]
 
 
 # TODO(dbmikus) this is an incomplete definition.

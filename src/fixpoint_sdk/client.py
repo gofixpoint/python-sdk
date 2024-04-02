@@ -11,7 +11,29 @@ from fixpoint_sdk.openapi.gen.openapi_client.api.llm_proxy_api import LLMProxyAp
 from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
 from . import types
-from .completions import Chat
+from .completions import Chat, ChatWithRouter
+
+
+class ChatRouterClient:
+    """The ChatRouterClient lets you interact with the Fixpoint API and the OpenAI API."""
+
+    def __init__(
+        self,
+        *args: typing.Any,
+        fixpoint_api_key: typing.Optional[str] = None,
+        openai_api_key: typing.Optional[str] = None,
+        api_base_url: typing.Optional[str] = None,
+        **kwargs: typing.Any,
+    ):
+        # Check that the environment variable FIXPOINT_API_KEY is set
+        _api_key = get_fixpoint_api_key(fixpoint_api_key)
+
+        self._api_key = _api_key
+        self._requester = Requester(self._api_key, get_api_base_url(api_base_url))
+        if openai_api_key:
+            kwargs = dict(kwargs, api_key=openai_api_key)
+        self.client = OpenAI(*args, **kwargs)
+        self.chat = ChatWithRouter(self._requester, self.client)
 
 
 class FixpointClient:
@@ -48,7 +70,7 @@ class FixpointClient:
             api_client = ApiClient(
                 configuration,
                 header_name="Authorization",
-                header_value=f"Bearer {0}".format(requester.api_key),
+                header_value=f"Bearer {requester.api_key}",
             )
             self.proxy_client = LLMProxyApi(api_client)
 
