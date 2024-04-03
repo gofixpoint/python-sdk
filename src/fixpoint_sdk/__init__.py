@@ -8,6 +8,8 @@ from .types import ThumbsReaction, ModeType
 from . import compat
 from .lib.logging import logger, LOGGER_NAME
 
+from .lib.exc import FixpointException, InitException, ApiException
+
 __all__ = [
     "FixpointClient",
     "ChatRouterClient",
@@ -20,4 +22,7 @@ __all__ = [
     "FixpointChatCompletionStream",
     "logger",
     "LOGGER_NAME",
+    "FixpointException",
+    "InitException",
+    "ApiException",
 ]

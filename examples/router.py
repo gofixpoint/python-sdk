@@ -82,6 +82,7 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
         print(
             f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
         )
+        raise
     print(f"Routing config created. ID = {routing_config.id}")
 
 
