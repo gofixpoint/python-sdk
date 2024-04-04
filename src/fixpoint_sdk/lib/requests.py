@@ -7,6 +7,7 @@ from openai.types.chat import ChatCompletion
 
 from .debugging import debug_log_function_io
 from .. import types
+from ..lib import exc
 
 DEFAULT_TIMEOUT_S = 60
 
@@ -206,7 +207,10 @@ class Requester:
         resp = requests.post(
             url, headers=headers, json=req_or_resp_obj, timeout=self.timeout_s
         )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.HTTPError as e:
+            raise exc.ApiException(e.response.status_code, e.response.text) from e
         if self._on_api_call:
             self._on_api_call(url, req_or_resp_obj, resp.json())
         return resp
