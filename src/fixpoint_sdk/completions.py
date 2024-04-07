@@ -18,27 +18,6 @@ from .lib.logging import logger
 from . import types
 
 
-Model = typing.Union[
-    str,
-    Literal[
-        "gpt-4-1106-preview",
-        "gpt-4-vision-preview",
-        "gpt-4",
-        "gpt-4-0314",
-        "gpt-4-0613",
-        "gpt-4-32k",
-        "gpt-4-32k-0314",
-        "gpt-4-32k-0613",
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-16k",
-        "gpt-3.5-turbo-0301",
-        "gpt-3.5-turbo-0613",
-        "gpt-3.5-turbo-1106",
-        "gpt-3.5-turbo-16k-0613",
-    ],
-]
-
-
 @dataclass
 class FixpointChatRoutedCompletion:
     """Wraps the OpenAI chat completion with logging data."""
@@ -223,7 +202,7 @@ class Completions:
         self,
         *,
         messages: List[ChatCompletionMessageParam],
-        model: Model,
+        model: types.openai.Model,
         stream: Optional[Literal[False]],
         **kwargs: typing.Any,
     ) -> FixpointChatCompletion: ...
@@ -233,7 +212,7 @@ class Completions:
         self,
         *,
         messages: List[ChatCompletionMessageParam],
-        model: Model,
+        model: types.openai.Model,
         stream: Literal[True],
         **kwargs: typing.Any,
     ) -> FixpointChatCompletionStream: ...
@@ -243,7 +222,7 @@ class Completions:
         self,
         *,
         messages: List[ChatCompletionMessageParam],
-        model: Model,
+        model: types.openai.Model,
         stream: bool,
         **kwargs: typing.Any,
     ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]: ...
@@ -253,7 +232,7 @@ class Completions:
         self,
         *,
         messages: List[ChatCompletionMessageParam],
-        model: Model,
+        model: types.openai.Model,
         stream: typing.Union[Optional[Literal[False]], Literal[True]] = None,
         **kwargs: typing.Any,
     ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]: ...
@@ -262,7 +241,7 @@ class Completions:
         self,
         *,
         messages: List[ChatCompletionMessageParam],
-        model: Model,
+        model: types.openai.Model,
         stream: typing.Union[Optional[Literal[False]], Literal[True]] = None,
         mode: Optional[types.ModeArg] = "unspecified",
         **kwargs: typing.Any,
@@ -333,16 +312,24 @@ class RoutedCompletions:
 
     def create(
         self,
+        *,
+        messages: List[ChatCompletionMessageParam],
         mode: Optional[types.ModeArg] = "unspecified",
         **kwargs: typing.Any,
     ) -> FixpointChatRoutedCompletion:
         """Create an OpenAI completion and log the LLM input and output."""
+
+        if "model" in kwargs:
+            raise ValueError('you cannot pass a "model" to the completions router')
+
         # Prepare the request
         req_copy = kwargs.copy()
-        trace_id = kwargs.pop("trace_id", None)
+        trace_id = req_copy.pop("trace_id", None)
 
         routed_log_resp = self._requester.create_openai_routed_log(
-            typing.cast(types.OpenAILLMInputLog, req_copy),
+            types.openai.RoutedCreateChatCompletionRequest(
+                messages=messages, **req_copy
+            ),
             mode=types.parse_mode_type(mode),
             trace_id=trace_id,
         )

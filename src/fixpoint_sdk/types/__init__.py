@@ -5,6 +5,11 @@ import enum
 from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
 from openai.types.chat import ChatCompletionMessageParam
 
+from . import openai
+from ._utils import to_dict_without_not_given, is_not_given, get_value_or_none
+
+__all__ = ["openai", "is_not_given", "get_value_or_none"]
+
 
 class ThumbsReaction(enum.Enum):
     """The specific user feedback reaction."""
@@ -84,7 +89,7 @@ class CreateLLMRoutingRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert this request to a dictionary."""
-        d = asdict(self)
+        d = to_dict_without_not_given(self)
         if self.mode is not None:
             d["mode"] = self.mode.value
         return d
@@ -103,7 +108,7 @@ class CreateLLMInputLogRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert this request to a dictionary."""
-        d = asdict(self)
+        d = to_dict_without_not_given(self)
         # convert this to a JSON-serializable type
         if self.mode is not None:
             d["mode"] = self.mode.value
@@ -111,7 +116,7 @@ class CreateLLMInputLogRequest:
 
 
 class OpenAILLMInputLog(TypedDict, total=False):
-    """An input log with attributes from OpenAI response.
+    """An input log with attributes from OpenAI request.
 
     This input log has some attributes that come directly from an OpenAI
     response. Some of the field names are slightly off from what our Fixpoint
