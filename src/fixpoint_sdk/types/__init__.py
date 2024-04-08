@@ -57,11 +57,14 @@ ModeArg = Union[
 ]
 
 
-def parse_mode_type(mode: Optional[Union[str, int, object]] = None) -> ModeType:
+def parse_mode_type(
+    mode: Optional[Union[str, int, object, ModeType]] = None
+) -> ModeType:
     """Parse a mode type from a string."""
     if mode is None:
         return ModeType.MODE_UNSPECIFIED
-
+    if isinstance(mode, ModeType):
+        return mode
     if isinstance(mode, int):
         return ModeType(mode)
 

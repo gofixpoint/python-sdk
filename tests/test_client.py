@@ -77,7 +77,7 @@ def test_log_llm_input_output() -> None:
         {
             "temperature": temperature,
             "user": user,
-            "model_name": model,
+            "model": model,
             "messages": messages,
         },
         trace_id=trace_id,
