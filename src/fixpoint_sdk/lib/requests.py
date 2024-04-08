@@ -211,7 +211,7 @@ class Requester:
     ) -> requests.Response:
         headers = {
             "Accept": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
+            "Authorization": f"Bearer {self.api_key()}",
         }
         resp = requests.post(
             url, headers=headers, json=req_or_resp_obj, timeout=self.timeout_s
