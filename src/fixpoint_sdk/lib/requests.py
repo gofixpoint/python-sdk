@@ -17,8 +17,8 @@ ApiCallback = typing.Callable[[str, typing.Any, typing.Any], None]
 class Requester:
     """Makes requests to the Fixpoint API."""
 
-    api_key: str
-    base_url: str
+    _api_key: str
+    _base_url: str
     timeout_s: int
     _on_api_call: typing.Optional[ApiCallback]
 
@@ -29,14 +29,22 @@ class Requester:
         timeout_s: int = DEFAULT_TIMEOUT_S,
         _on_api_call: typing.Optional[ApiCallback] = None,
     ):
-        self.api_key = api_key
-        self.base_url = base_url
+        self._api_key = api_key
+        self._base_url = base_url
         self.timeout_s = timeout_s
 
-        if self.base_url[-1] == "/":
-            self.base_url = self.base_url[:-1]
+        if self._base_url[-1] == "/":
+            self._base_url = self._base_url[:-1]
 
         self._on_api_call = _on_api_call
+
+    def base_url(self) -> str:
+        """Get the base URL."""
+        return self._base_url
+
+    def api_key(self) -> str:
+        """Get the API key."""
+        return self._api_key
 
     @debug_log_function_io
     def create_openai_routed_log(
@@ -46,7 +54,7 @@ class Requester:
         mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
     ) -> types.ChatCompletion:
         """Create routed input log for an LLM inference request."""
-        url = f"{self.base_url}/v1/router"
+        url = f"{self._base_url}/v1/router"
         req_dict = request.to_dict()
         input_log_req = types.CreateLLMRoutingRequest(
             messages=request.messages,
@@ -70,7 +78,7 @@ class Requester:
         mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
     ) -> types.InputLog:
         """Create an input log for an LLM inference request."""
-        url = f"{self.base_url}/v1/openai_chats/{model_name}/input_logs"
+        url = f"{self._base_url}/v1/openai_chats/{model_name}/input_logs"
         input_log_req = types.CreateLLMInputLogRequest(
             model_name=model_name,
             messages=request["messages"],
@@ -93,7 +101,7 @@ class Requester:
         mode: types.ModeType = types.ModeType.MODE_UNSPECIFIED,
     ) -> types.OutputLog:
         """Create an output log for an LLM inference response."""
-        url = f"{self.base_url}/v1/openai_chats/{model_name}/output_logs"
+        url = f"{self._base_url}/v1/openai_chats/{model_name}/output_logs"
 
         # If input_log_results doesn't have id then error
         if "name" not in input_log_results:
@@ -137,7 +145,7 @@ class Requester:
         self, request: types.CreateUserFeedbackRequest
     ) -> types.CreateUserFeedbackResponse:
         """Create user feedback on an LLM log."""
-        url = f"{self.base_url}/v1/likes"
+        url = f"{self._base_url}/v1/likes"
 
         if "likes" not in request:
             raise ValueError("request must have a likes")
@@ -175,7 +183,7 @@ class Requester:
         self, request: types.CreateLogAttributeRequest
     ) -> types.LogAttribute:
         """Create a LLM log attribute and attach it to that LLM log."""
-        url = f"{self.base_url}/v1/attributes"
+        url = f"{self._base_url}/v1/attributes"
 
         if "log_attribute" not in request:
             raise ValueError("request must have a log_attribute")
