@@ -1,7 +1,7 @@
 """Code for chat completions."""
 
 import typing
-from typing import Optional, Literal, List, Generator
+from typing import Callable, Optional, Literal, List, Generator
 from dataclasses import dataclass
 
 from openai import OpenAI
@@ -190,12 +190,28 @@ def combine_chunks(chunks: typing.List[ChatCompletionChunk]) -> ChatCompletion:
     )
 
 
+@dataclass
+class _CompletionsDeps:
+    create_completion: Optional[
+        Callable[[types.openai.CreateChatCompletionRequest], ChatCompletion]
+    ] = None
+
+
 class Completions:
     """Create chat completion inferences and log them."""
 
-    def __init__(self, requester: Requester, client: OpenAI):
+    _deps: Optional[_CompletionsDeps] = None
+    """For dependency injection. Useful for testing, etc."""
+
+    def __init__(
+        self,
+        requester: Requester,
+        client: OpenAI,
+        _deps: Optional[_CompletionsDeps] = None,
+    ):
         self.client = client
         self._requester = requester
+        self._deps = _deps
 
     @typing.overload
     def create(
@@ -283,9 +299,16 @@ class Completions:
                 model_name=req_copy["model_name"],
             )
 
-        openai_response = self.client.chat.completions.create(
-            messages=messages, model=model, stream=stream, **kwargs
-        )
+        if self._deps and self._deps.create_completion:
+            openai_response = self._deps.create_completion(
+                types.openai.CreateChatCompletionRequest(
+                    messages=messages, model=model, stream=stream, **kwargs
+                )
+            )
+        else:
+            openai_response = self.client.chat.completions.create(
+                messages=messages, model=model, stream=stream, **kwargs
+            )
         dprint(f"Received an openai response: {openai_response.id}")
         # Send HTTP request after calling create
         output_resp = self._requester.create_openai_output_log(
@@ -347,8 +370,18 @@ class ChatWithRouter:
         self.completions = RoutedCompletions(requester, client)
 
 
+@dataclass
+class _ChatDeps:
+    completions: Optional[_CompletionsDeps] = None
+
+
 class Chat:
     """The Chat class lets you interact with the underlying chat APIs."""
 
-    def __init__(self, requester: Requester, client: OpenAI):
-        self.completions = Completions(requester, client)
+    def __init__(
+        self, requester: Requester, client: OpenAI, _deps: Optional[_ChatDeps] = None
+    ):
+        _completions_deps = None
+        if _deps and _deps.completions:
+            _completions_deps = _deps.completions
+        self.completions = Completions(requester, client, _deps=_completions_deps)
