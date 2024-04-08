@@ -50,7 +50,7 @@ class ChatRouterClient(_FixpointClientBase):
             api_base_url=api_base_url,
             **kwargs,
         )
-        client = OpenAI(**kwargs)
+        client = OpenAI(api_key=openai_api_key, **kwargs)
         self.chat = ChatWithRouter(self._requester, client)
 
 
@@ -71,7 +71,7 @@ class FixpointClient(_FixpointClientBase):
             api_base_url=api_base_url,
             **kwargs,
         )
-        client = OpenAI(**kwargs)
+        client = OpenAI(api_key=openai_api_key, **kwargs)
         self.chat = Chat(self._requester, client)
 
 
