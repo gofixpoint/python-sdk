@@ -13,6 +13,7 @@ from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
 from . import types
 from .completions import Chat, ChatWithRouter, _ChatDeps
+from ._logging_api import LLMLogging
 
 
 @dataclass
@@ -95,6 +96,7 @@ class _Fixpoint:
     def __init__(self, requester: Requester):
         self.user_feedback = self._UserFeedback(requester)
         self.attributes = self._Attributes(requester)
+        self.logging = self._Logging(LLMLogging(requester))
 
         configuration = Configuration(
             host=get_api_base_url(requester.base_url()),
@@ -106,6 +108,10 @@ class _Fixpoint:
             header_value=f"Bearer {requester.api_key}",
         )
         self.proxy_client = LLMProxyApi(api_client)
+
+    class _Logging:
+        def __init__(self, llm: LLMLogging):
+            self.llm = llm
 
     class _UserFeedback:
         def __init__(self, requester: Requester):

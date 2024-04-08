@@ -16,6 +16,7 @@ from .lib.debugging import dprint
 from .lib.iterwrapper import IterWrapper
 from .lib.logging import logger
 from . import types
+from ._logging_api import log_llm_input, log_llm_output
 
 
 @dataclass
@@ -72,19 +73,18 @@ class FixpointChatCompletionStream:
             self._all_streamed = True
             # Send HTTP request after calling create
             try:
-                output_resp = self._requester.create_openai_output_log(
+                output_log = log_llm_output(
+                    self._requester,
                     self._model_name,
                     self.input_log,
                     combine_chunks(self._outputs),
                     trace_id=self._trace_id,
                     mode=self._mode_type,
                 )
-                dprint(f"Created an output log: {output_resp['name']}")
-                self._output_log = output_resp
+                self._output_log = output_log
             # pylint: disable=broad-exception-caught
             except Exception:
-                # TODO(dbmikus) log the error here, but don't pollute client logs
-                pass
+                logger.exception("error logging LLM output")
 
         def on_error(exc: Exception) -> None:
             raise exc
@@ -263,66 +263,70 @@ class Completions:
         **kwargs: typing.Any,
     ) -> typing.Union[FixpointChatCompletion, FixpointChatCompletionStream]:
         """Create an OpenAI completion and log the LLM input and output."""
+
+        # Separate out the kwargs so that we can pass through all extra
+        # arguments to OpenAI but also avoid having duplicate keyword arguments
+        # when calling the Fixpoint APIs.
+
         # Do not mutate the input kwargs. That is an unexpected behavior for
         # our caller.
-        kwargs = kwargs.copy()
+        openaikwargs = kwargs.copy()
         # Extract trace_id from kwargs, if it exists, otherwise set it to None
-        trace_id = kwargs.pop("trace_id", None)
+        trace_id = openaikwargs.pop("trace_id", None)
         mode_type = types.parse_mode_type(mode)
 
-        # Deep copy the kwargs to avoid modifying the original
-        req_copy = kwargs.copy()
-        req_copy["model_name"] = model
-        req_copy["messages"] = messages
+        fixpointkwargs = openaikwargs.copy()
+        user = fixpointkwargs.pop("user", None)
+        temperature = fixpointkwargs.pop("temperature", None)
 
-        # Send HTTP request before calling create
-        input_resp = self._requester.create_openai_input_log(
-            req_copy["model_name"],
-            # TODO(dbmikus) fix sloppy typing
-            typing.cast(types.OpenAILLMInputLog, req_copy),
+        input_log = log_llm_input(
+            self._requester,
+            messages=messages,
+            model=model,
             trace_id=trace_id,
-            mode=mode_type,
+            mode=mode,
+            user=user,
+            temperature=temperature,
+            **fixpointkwargs,
         )
-        dprint(f'Created an input log: {input_resp["name"]}')
 
         if stream:
-            openai_response = self.client.chat.completions.create(
-                messages=messages, model=model, stream=stream, **kwargs
+            completion = self.client.chat.completions.create(
+                messages=messages, model=model, stream=stream, **openaikwargs
             )
             dprint("Received an openai response stream")
             return FixpointChatCompletionStream(
-                stream=openai_response,
-                input_log=input_resp,
+                stream=completion,
+                input_log=input_log,
                 mode_type=mode_type,
                 requester=self._requester,
                 trace_id=trace_id,
-                model_name=req_copy["model_name"],
+                model_name=model,
             )
 
         if self._deps and self._deps.create_completion:
-            openai_response = self._deps.create_completion(
+            completion = self._deps.create_completion(
                 types.openai.CreateChatCompletionRequest(
-                    messages=messages, model=model, stream=stream, **kwargs
+                    messages=messages, model=model, stream=stream, **openaikwargs
                 )
             )
         else:
-            openai_response = self.client.chat.completions.create(
-                messages=messages, model=model, stream=stream, **kwargs
+            completion = self.client.chat.completions.create(
+                messages=messages, model=model, stream=stream, **openaikwargs
             )
-        dprint(f"Received an openai response: {openai_response.id}")
-        # Send HTTP request after calling create
-        output_resp = self._requester.create_openai_output_log(
-            req_copy["model_name"],
-            input_resp,
-            openai_response,
+        dprint(f"Received an openai response: {completion.id}")
+        output_log = log_llm_output(
+            self._requester,
+            model,
+            input_log,
+            completion,
             trace_id=trace_id,
-            mode=mode_type,
+            mode=mode,
         )
-        dprint(f"Created an output log: {output_resp['name']}")
         return FixpointChatCompletion(
-            completion=openai_response,
-            input_log=input_resp,
-            output_log=output_resp,
+            completion=completion,
+            input_log=input_log,
+            output_log=output_log,
         )
 
 
