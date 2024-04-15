@@ -5,9 +5,9 @@ import typing
 
 from openai import OpenAI
 
-from .openapi.gen.openapi_client.configuration import Configuration
-from .openapi.gen.openapi_client.api_client import ApiClient
-from .openapi.gen.openapi_client.api.llm_proxy_api import LLMProxyApi
+from fixpoint_openapi.configuration import Configuration
+from fixpoint_openapi.api_client import ApiClient
+from fixpoint_openapi.api.fixpoint_api import FixpointApi
 
 from .lib.env import get_fixpoint_api_key, get_api_base_url
 from .lib.requests import Requester
@@ -105,9 +105,9 @@ class _Fixpoint:
         api_client = ApiClient(
             configuration,
             header_name="Authorization",
-            header_value=f"Bearer {requester.api_key}",
+            header_value=f"Bearer {requester.api_key()}",
         )
-        self.proxy_client = LLMProxyApi(api_client)
+        self.proxy_client = FixpointApi(api_client)
 
     class _Logging:
         def __init__(self, llm: LLMLogging):

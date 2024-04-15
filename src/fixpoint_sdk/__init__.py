@@ -1,8 +1,9 @@
 """The Fixpoint SDK provides a Python client for the Fixpoint API."""
 
+import fixpoint_openapi as openapi_client
+
 from .client import FixpointClient, ChatRouterClient
 from .completions import FixpointChatCompletion, FixpointChatCompletionStream
-from .openapi.gen import openapi_client
 from . import types
 from .types import ThumbsReaction, ModeType
 from . import compat
