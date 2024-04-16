@@ -52,7 +52,7 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
         fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
         terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_ERROR,
         models=[
-            openapi_client.V1Model(
+            openapi_client.Fixpointv1Model(
                 provider="openai",
                 name="gpt-3.5-turbo-0125",
                 spend_cap=openapi_client.V1SpendCap(
@@ -61,7 +61,7 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
                     reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
                 ),
             ),
-            openapi_client.V1Model(
+            openapi_client.Fixpointv1Model(
                 provider="openai",
                 name="gpt-3.5-turbo-0301",
                 spend_cap=openapi_client.V1SpendCap(
@@ -75,12 +75,12 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
     )
 
     try:
-        routing_config = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
+        routing_config = client.fixpoint.proxy_client.fixpoint_create_routing_config(
             routing_config_req
         )
     except ApiException as e:
         print(
-            f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
+            f"Exception when calling FixpointApi->fixpoint_create_routing_config: {e}\n"
         )
         raise
     print(f"Routing config created. ID = {routing_config.id}")
@@ -98,7 +98,7 @@ def create_routing_config_last_uncapped(client: ChatRouterClient) -> None:
         fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
         terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_IGNORE_CAP,
         models=[
-            openapi_client.V1Model(
+            openapi_client.Fixpointv1Model(
                 provider="openai",
                 name="gpt-3.5-turbo-0125",
                 spend_cap=openapi_client.V1SpendCap(
@@ -107,7 +107,7 @@ def create_routing_config_last_uncapped(client: ChatRouterClient) -> None:
                     reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
                 ),
             ),
-            openapi_client.V1Model(
+            openapi_client.Fixpointv1Model(
                 provider="openai",
                 name="gpt-3.5-turbo-0301",
             ),
@@ -116,14 +116,15 @@ def create_routing_config_last_uncapped(client: ChatRouterClient) -> None:
     )
 
     try:
-        routing_config = client.fixpoint.proxy_client.llm_proxy_create_routing_config(
+        routing_config = client.fixpoint.proxy_client.fixpoint_create_routing_config(
             routing_config_req
         )
         print(f"Routing config created. ID = {routing_config.id}")
     except ApiException as e:
         print(
-            f"Exception when calling LLMProxyApi->llm_proxy_create_routing_config: {e}\n"
+            f"Exception when calling FixpointApi->fixpoint_create_routing_config: {e}\n"
         )
+        raise
 
 
 if __name__ == "__main__":

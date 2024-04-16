@@ -1,3 +1,5 @@
-from .gen.openapi_client.exceptions import ApiException
+"""Cleanly expose some OpenAPI client exceptions"""
+
+from fixpoint_openapi.exceptions import ApiException
 
 __all__ = ["ApiException"]

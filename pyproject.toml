@@ -41,7 +41,8 @@ dev = [
   "urllib3>=1.25.3",
   "python-dateutil>=2.8.2",
   "pydantic>=2",
-  "typing-extensions>=4.7.1"
+  "typing-extensions>=4.7.1",
+  "fixpoint-openapi>=0.1.0"
 ]
 
 [project.urls]
