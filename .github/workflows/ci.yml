@@ -31,8 +31,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: ${{ github.workspace }}/requirements.txt
-      - run: pip install -r ${{ github.workspace }}/requirements.txt
 
       - run: pip install -e '.[dev]'
         working-directory: ${{ github.workspace }}
