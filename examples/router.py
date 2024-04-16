@@ -75,7 +75,7 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
     )
 
     try:
-        routing_config = client.fixpoint.proxy_client.fixpoint_create_routing_config(
+        routing_config = client.fixpoint.api.fixpoint_create_routing_config(
             routing_config_req
         )
     except ApiException as e:
@@ -116,7 +116,7 @@ def create_routing_config_last_uncapped(client: ChatRouterClient) -> None:
     )
 
     try:
-        routing_config = client.fixpoint.proxy_client.fixpoint_create_routing_config(
+        routing_config = client.fixpoint.api.fixpoint_create_routing_config(
             routing_config_req
         )
         print(f"Routing config created. ID = {routing_config.id}")

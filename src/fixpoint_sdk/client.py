@@ -93,6 +93,8 @@ class FixpointClient(_FixpointClientBase):
 
 
 class _Fixpoint:
+    api: FixpointApi
+
     def __init__(self, requester: Requester):
         self.user_feedback = self._UserFeedback(requester)
         self.attributes = self._Attributes(requester)
@@ -107,7 +109,8 @@ class _Fixpoint:
             header_name="Authorization",
             header_value=f"Bearer {requester.api_key()}",
         )
-        self.proxy_client = FixpointApi(api_client)
+        self.api = FixpointApi(api_client)
+        self.proxy_client = self.api
 
     class _Logging:
         def __init__(self, llm: LLMLogging):
