@@ -52,7 +52,7 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
         fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
         terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_ERROR,
         models=[
-            openapi_client.models.V1Mode(
+            openapi_client.Fixpointv1Model(
                 provider="openai",
                 name="gpt-3.5-turbo-0125",
                 spend_cap=openapi_client.V1SpendCap(
@@ -61,7 +61,7 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
                     reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
                 ),
             ),
-            openapi_client.models.V1Mode(
+            openapi_client.Fixpointv1Model(
                 provider="openai",
                 name="gpt-3.5-turbo-0301",
                 spend_cap=openapi_client.V1SpendCap(
