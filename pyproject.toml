@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fixpoint_sdk"
-version = "0.8.0"
+version = "0.8.0-rc00"
 
 authors = [
 { name="Jakub Cichon", email="jakub@fixpoint.co" },
@@ -24,7 +24,8 @@ dependencies = [
   "requests==2.31.0",
   "python-dateutil>=2.8.2",
   "pydantic>=2",
-  "typing-extensions>=4.7.1"
+  "typing-extensions>=4.7.1",
+  "fixpoint-openapi>=0.1.0"
 ]
 
 [project.optional-dependencies]
@@ -41,8 +42,7 @@ dev = [
   "urllib3>=1.25.3",
   "python-dateutil>=2.8.2",
   "pydantic>=2",
-  "typing-extensions>=4.7.1",
-  "fixpoint-openapi>=0.1.0"
+  "typing-extensions>=4.7.1"
 ]
 
 [project.urls]
