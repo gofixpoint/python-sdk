@@ -16,7 +16,20 @@ class ApiKeys:
 
 
 def main(apikeys: ApiKeys) -> None:
-    """Example of multi-LLM routing"""
+    """Example of multi-LLM routing
+
+    When you make a MultiLLMChatCompletion request, it will make multiple LLM
+    inference requests at once. Your client code will receive the chat
+    completion back for the first model specified, while all subsequent model
+    inference requests occur in the background (aka they do not block your first
+    request from returning).
+
+    All inference requests are logged to Fixpoint, and you can find sibling
+    requests because all siblings will have the same `parent_span_id` set to
+    equal the `span_id` that you passed in on the request. Or if you don't have
+    multiple LLM inference requests in the same trace, you can find all sibling
+    chat completions by filtering to the `trace_id`.
+    """
     client = FixpointClient(
         fixpoint_api_key=apikeys.fixpoint,
         openai_api_key=apikeys.openai,
@@ -28,12 +41,14 @@ def main(apikeys: ApiKeys) -> None:
         openapi_client.V1CreateMultiLLMChatCompletionRequest(
             mode=openapi_client.V1Mode.MODE_TEST,
             models=[
+                # This is the model response the Fixpoint API will return to the client
                 openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
                     name="anthropic/claude-3-sonnet-20240229",
                     temperature=1.0,
                     api_key=apikeys.anthropic,
                     max_tokens=1024,
                 ),
+                # These model chat completion requests will be made in the background
                 openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
                     name="openai/gpt-3.5-turbo-1106",
                     temperature=1.8,
@@ -46,10 +61,14 @@ def main(apikeys: ApiKeys) -> None:
                 ),
             ],
             tracing=openapi_client.V1Tracing(
+                # All children inference requests (one for each model above)
+                # will share this session ID.
                 session_id="27eea3a1-e16e-4643-aa0c-4b0cdb4e826b",
+                # All children inference requests share this trace ID.
                 trace_id="trace_id",
+                # All children inference requests have `parent_span_id` set to this.
                 span_id="46425bf0-6e48-4018-9e34-7539627a09ea",
-                parent_span_id="parent_span",
+                parent_span_id="d6156682-70bd-430b-9701-50c20fc4bf39",
             ),
             user_id="dylan",
             messages=[
