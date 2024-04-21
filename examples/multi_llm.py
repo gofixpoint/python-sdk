@@ -60,6 +60,17 @@ def main(apikeys: ApiKeys) -> None:
                     api_key=apikeys.openai,
                 ),
             ],
+            messages=[
+                openapi_client.V1InputMessage(
+                    role="system",
+                    content="You are an old curmudgeonly AI. You are helpful, but you don't like being helpful. You are concise.",  # pylint: disable=line-too-long
+                ),
+                openapi_client.V1InputMessage(
+                    role="user", content="How does ChatGPT work?"
+                ),
+            ],
+            # Specify tracing info so that we can correlate these multi-LLM
+            # requests and see what the different base models generated.
             tracing=openapi_client.V1Tracing(
                 # All children inference requests (one for each model above)
                 # will share this session ID.
@@ -71,14 +82,13 @@ def main(apikeys: ApiKeys) -> None:
                 parent_span_id="d6156682-70bd-430b-9701-50c20fc4bf39",
             ),
             user_id="dylan",
-            messages=[
-                openapi_client.V1InputMessage(
-                    role="system",
-                    content="You are an old curmudgeonly AI. You are helpful, but you don't like being helpful. You are concise.",  # pylint: disable=line-too-long
-                ),
-                openapi_client.V1InputMessage(
-                    role="user", content="How does ChatGPT work?"
-                ),
+            # You can also attach log attributes to the LLM requests. This can
+            # be useful if you are doing an experiment to try out different LLM
+            # models.
+            log_attributes=[
+                openapi_client.V1LogAttribute(
+                    key="experiment", value="multi-llm-example"
+                )
             ],
         )
     )
