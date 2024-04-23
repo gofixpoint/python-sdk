@@ -1,6 +1,6 @@
 """An example streaming back the chat completion."""
 
-from fixpoint_sdk import FixpointClient
+from fixpoint import FixpointClient
 
 
 def main() -> None:

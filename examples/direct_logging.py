@@ -9,8 +9,8 @@ from typing import List
 from openai import OpenAI
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 
-import fixpoint_sdk
-from fixpoint_sdk import FixpointClient
+import fixpoint
+from fixpoint import FixpointClient
 
 
 def main() -> None:
@@ -23,7 +23,7 @@ def main() -> None:
         {"role": "user", "content": "What are you?"},
     ]
     user_id = "some-user-id"
-    model: fixpoint_sdk.types.openai.Model = "gpt-3.5-turbo-0125"
+    model: fixpoint.types.openai.Model = "gpt-3.5-turbo-0125"
 
     completion = openaiclient.chat.completions.create(
         messages=messages, model=model, user=user_id

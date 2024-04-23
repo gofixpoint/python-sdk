@@ -40,7 +40,7 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Format Python
-        run: black --check . --extend-exclude src/fixpoint_sdk/openapi
+        run: black --check . --extend-exclude src/fixpoint/openapi
         working-directory: ${{ github.workspace }}
 
       - name: Lint Python

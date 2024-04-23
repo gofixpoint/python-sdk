@@ -8,8 +8,8 @@ on configurable rules.
 
 import os
 
-from fixpoint_sdk import openapi_client, ChatRouterClient
-from fixpoint_sdk.openapi.exceptions import ApiException
+from fixpoint import openapi_client, ChatRouterClient
+from fixpoint.openapi.exceptions import ApiException
 
 
 def main(skip_creating_config: bool) -> None:
