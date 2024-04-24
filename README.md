@@ -4,9 +4,9 @@ The `FixpointClient` wraps the OpenAI API Client. You can call it just like Open
 
 ## Installation
 
-You can view the package on [pypi](https://pypi.org/project/fixpoint-sdk/). To install:
+You can view the package on [pypi](https://pypi.org/project/fixpoint/). To install:
 
-`pip install fixpoint-sdk`
+`pip install fixpoint`
 
 ## Usage
 

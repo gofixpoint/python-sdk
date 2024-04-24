@@ -8,11 +8,11 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from openai.types.completion_usage import CompletionUsage
 
-from fixpoint_sdk import FixpointClient, types as fixtypes
-from fixpoint_sdk.client import _FixpointClientDeps
-from fixpoint_sdk.completions import _ChatDeps, _CompletionsDeps
-from fixpoint_sdk.lib._mock_requests import MockRequester
-from fixpoint_sdk._mock_completions import MockChatCompletion
+from fixpoint import FixpointClient, types as fixtypes
+from fixpoint.client import _FixpointClientDeps
+from fixpoint.completions import _ChatDeps, _CompletionsDeps
+from fixpoint.lib._mock_requests import MockRequester
+from fixpoint._mock_completions import MockChatCompletion
 
 
 def test_log_llm_input_output() -> None:

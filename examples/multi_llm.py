@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 import os
 
-from fixpoint_sdk import openapi_client, FixpointClient
+from fixpoint import openapi_client, FixpointClient
 
 
 @dataclass

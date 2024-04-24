@@ -5,7 +5,7 @@ import pytest
 
 from openai.types.chat import ChatCompletionChunk
 
-from fixpoint_sdk.completions import combine_chunks, FinishReason
+from fixpoint.completions import combine_chunks, FinishReason
 from .mock_completions import new_chunks, new_chat_completion
 
 

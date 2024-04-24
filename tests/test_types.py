@@ -2,7 +2,7 @@
 
 import pytest
 
-from fixpoint_sdk.types import ModeType, parse_mode_type
+from fixpoint.types import ModeType, parse_mode_type
 
 
 def test_parse_mode_type() -> None:
