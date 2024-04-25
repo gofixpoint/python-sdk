@@ -54,12 +54,12 @@ def main(apikeys: ApiKeys) -> None:
             # These model chat completion requests will be made in the background
             openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
                 name="openai/gpt-3.5-turbo-1106",
-                temperature=1.8,
+                temperature=1.0,
                 api_key=apikeys.openai,
             ),
             openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
                 name="openai/gpt-3.5-turbo-1106",
-                temperature=1.5,
+                temperature=0.8,
                 api_key=apikeys.openai,
             ),
         ],
