@@ -22,7 +22,7 @@ dependencies = [
   "python-dateutil>=2.8.2",
   "pydantic>=2",
   "typing-extensions>=4.7.1",
-  "fixpoint-openapi==0.3.0"
+  "fixpoint-openapi==0.4.0"
 ]
 
 [project.optional-dependencies]
