@@ -52,19 +52,19 @@ def create_routing_config_all_capped(client: ChatRouterClient) -> None:
         fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
         terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_ERROR,
         models=[
-            openapi_client.Fixpointv1Model(
+            openapi_client.V1SpendCapModel(
                 provider="openai",
                 name="gpt-3.5-turbo-0125",
-                spend_cap=openapi_client.V1SpendCap(
+                spend_cap=openapi_client.Fixpointv1SpendCap(
                     amount="0.0001",
                     currency="USD",
                     reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
                 ),
             ),
-            openapi_client.Fixpointv1Model(
+            openapi_client.V1SpendCapModel(
                 provider="openai",
                 name="gpt-3.5-turbo-0301",
-                spend_cap=openapi_client.V1SpendCap(
+                spend_cap=openapi_client.Fixpointv1SpendCap(
                     amount="0.0001",
                     currency="USD",
                     reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
@@ -98,16 +98,16 @@ def create_routing_config_last_uncapped(client: ChatRouterClient) -> None:
         fallback_strategy=openapi_client.V1FallbackStrategy.FALLBACK_STRATEGY_NEXT,
         terminal_state=openapi_client.V1TerminalState.TERMINAL_STATE_IGNORE_CAP,
         models=[
-            openapi_client.Fixpointv1Model(
+            openapi_client.V1SpendCapModel(
                 provider="openai",
                 name="gpt-3.5-turbo-0125",
-                spend_cap=openapi_client.V1SpendCap(
+                spend_cap=openapi_client.Fixpointv1SpendCap(
                     amount="0.0001",
                     currency="USD",
                     reset_interval=openapi_client.V1ResetInterval.RESET_INTERVAL_MONTHLY,
                 ),
             ),
-            openapi_client.Fixpointv1Model(
+            openapi_client.V1SpendCapModel(
                 provider="openai",
                 name="gpt-3.5-turbo-0301",
             ),
