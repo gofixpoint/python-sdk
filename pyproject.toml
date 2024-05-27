@@ -1,6 +1,6 @@
 [project]
 name = "fixpoint"
-version = "0.9.0"
+version = "0.10.0"
 
 authors = [
   {name="Fixpoint", email="team@fixpoint.co"},
@@ -22,7 +22,7 @@ dependencies = [
   "python-dateutil>=2.8.2",
   "pydantic>=2",
   "typing-extensions>=4.7.1",
-  "fixpoint-openapi==0.3.0"
+  "fixpoint-openapi==0.4.0"
 ]
 
 [project.optional-dependencies]

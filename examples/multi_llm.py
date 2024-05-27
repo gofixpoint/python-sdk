@@ -45,19 +45,19 @@ def main(apikeys: ApiKeys) -> None:
         mode=openapi_client.V1Mode.MODE_TEST,
         models=[
             # This is the model response the Fixpoint API will return to the client
-            openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
+            openapi_client.V1Model(
                 name="anthropic/claude-3-sonnet-20240229",
                 temperature=0.8,
                 api_key=apikeys.anthropic,
                 max_tokens=1024,
             ),
             # These model chat completion requests will be made in the background
-            openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
+            openapi_client.V1Model(
                 name="openai/gpt-3.5-turbo-1106",
                 temperature=1.0,
                 api_key=apikeys.openai,
             ),
-            openapi_client.V1CreateMultiLLMChatCompletionRequestModel(
+            openapi_client.V1Model(
                 name="openai/gpt-3.5-turbo-1106",
                 temperature=0.8,
                 api_key=apikeys.openai,
