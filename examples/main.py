@@ -2,7 +2,7 @@
 
 """An example using the basics of the Fixpoint SDK."""
 
-from fixpoint import FixpointClient, ThumbsReaction
+from fixpoint_sdk import FixpointClient, ThumbsReaction
 
 
 def main() -> None:

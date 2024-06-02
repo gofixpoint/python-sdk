@@ -13,9 +13,9 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from openai.types.completion_usage import CompletionUsage
 import requests_mock
 
-from fixpoint import types as fixtypes
-from fixpoint.lib import requests as fixrequests
-from fixpoint import ThumbsReaction
+from fixpoint_sdk import types as fixtypes
+from fixpoint_sdk.lib import requests as fixrequests
+from fixpoint_sdk import ThumbsReaction
 
 
 @dataclasses.dataclass

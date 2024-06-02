@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from fixpoint.types import openai
+from fixpoint_sdk.types import openai
 
 
 def test_to_dict() -> None:
