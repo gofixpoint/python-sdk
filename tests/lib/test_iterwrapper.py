@@ -3,7 +3,7 @@
 from typing import List, Generator, Iterator
 
 import pytest
-from fixpoint.lib.iterwrapper import IterWrapper
+from fixpoint_sdk.lib.iterwrapper import IterWrapper
 
 
 def yielder() -> Generator[int, None, None]:

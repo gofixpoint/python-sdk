@@ -8,7 +8,7 @@ from typing import cast, Any, Dict, List, Tuple
 from openai.types.chat import ChatCompletion
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 
-import fixpoint
+import fixpoint_sdk
 
 
 COT_CLASSIFY_FN = "cot_classify"
@@ -33,13 +33,13 @@ class COTResult:
         return cast(str, self.eval_json["classification"])
 
 
-def main() -> Tuple[fixpoint.FixpointChatCompletion, COTResult]:
+def main() -> Tuple[fixpoint_sdk.FixpointChatCompletion, COTResult]:
     """An example of using FixpointClient to make LLM tool calls"""
     # Make sure that the enviroment variables set:
     # - `FIXPOINT_API_KEY` is set to your Fixpoint API key
     # - `OPENAI_API_KEY` is set to your normal OpenAI API key
     # Create a FixpointClient instance (uses the FIXPOINT_API_KEY env var)
-    client = fixpoint.FixpointClient()
+    client = fixpoint_sdk.FixpointClient()
 
     input_ = "Who played Dumbledore in the Harry Potter movies?"
     ideal = """Dumbledore was portrayed by Richard Harris in the film adaptations of Harry Potter and the Philosopher's Stone (2001) and Harry Potter and the Chamber of Secrets (2002). Following Harris' death in October 2002, Michael Gambon portrayed Dumbledore in the six remaining Harry Potter films from 2004 to 2011. Jude Law portrayed Dumbledore as a middle-aged man in the prequel films Fantastic Beasts: The Crimes of Grindelwald (2018) and Fantastic Beasts: The Secrets of Dumbledore (2022)."""  # pylint: disable=line-too-long
@@ -51,7 +51,7 @@ def main() -> Tuple[fixpoint.FixpointChatCompletion, COTResult]:
     # Normally, Python should infer the return type because the `stream` arg is
     # absent, but it is not doing so here, so force cast it.
     resp = cast(
-        fixpoint.FixpointChatCompletion,
+        fixpoint_sdk.FixpointChatCompletion,
         client.chat.completions.create(
             messages=messages,
             model="gpt-3.5-turbo",

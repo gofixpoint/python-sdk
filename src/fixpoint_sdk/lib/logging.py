@@ -2,6 +2,6 @@
 
 import logging
 
-LOGGER_NAME = "fixpoint"
+LOGGER_NAME = "fixpoint_sdk"
 
 logger = logging.getLogger(LOGGER_NAME)

@@ -5,7 +5,7 @@ import os
 import uuid
 from typing import List, Optional
 
-from fixpoint import openapi_client, FixpointClient
+from fixpoint_sdk import openapi_client, FixpointClient
 
 
 @dataclass
